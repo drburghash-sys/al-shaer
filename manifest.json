@@ -1,0 +1,26 @@
+{
+  "name": "الشاعر — مدرب الفصيح والشعبي",
+  "short_name": "الشاعر",
+  "description": "تطبيق عربي لتدريب الملكة الشعرية في الفصيح والشعبي: معنى، صورة، بلاغة، قافية، وزن ونقد.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#061510",
+  "theme_color": "#071711",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
