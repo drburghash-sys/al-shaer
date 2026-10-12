@@ -56,7 +56,7 @@ function readingStatus(t){$('#readingStatus').textContent=t||''}
 function stopReading(){
   readingPlaybackToken++;
   if('speechSynthesis' in window)window.speechSynthesis.cancel();
-  $('.reading-verse').forEach(function(e){e.classList.remove('active')});
+  Array.from(document.querySelectorAll('.reading-verse')).forEach(function(e){e.classList.remove('active')});
 }
 function readingPool(){
   var mode=$('#readMode').value,poet=$('#readPoet').value;
@@ -99,9 +99,9 @@ function playReading(){
   var i=0;
   function next(){
     if(token!==readingPlaybackToken)return;
-    if(i>=currentReading.verses.length){$('.reading-verse').forEach(function(el){el.classList.remove('active')});readingStatus('انتهت قراءة الأبيات الخمسة.');return}
+    if(i>=currentReading.verses.length){Array.from(document.querySelectorAll('.reading-verse')).forEach(function(el){el.classList.remove('active')});readingStatus('انتهت قراءة الأبيات الخمسة.');return}
     var verse=currentReading.verses[i],idx=i++;
-    $('.reading-verse').forEach(function(el){el.classList.toggle('active',Number(el.dataset.verse)===idx)});
+    Array.from(document.querySelectorAll('.reading-verse')).forEach(function(el){el.classList.toggle('active',Number(el.dataset.verse)===idx)});
     readingStatus('قراءة البيت '+i+' من 5'+(!voice?' · لا يظهر صوت عربي مثبت؛ قد تختلف جودة النطق.':''));
     var utter=new SpeechSynthesisUtterance(verse[0]+'، '+verse[1]);
     utter.lang=voice?voice.lang:'ar-SA';
@@ -140,7 +140,7 @@ function meterUI(){$$('#meterKinds button').forEach(function(b){b.classList.togg
 function lexUI(){stats();if(!st.lex.length){$('#lexList').innerHTML='<div class="feedback">دفترك فارغ. أضف كلمة أو صورة أو تركيبًا أعجبك أثناء القراءة.</div>';return}$('#lexList').innerHTML=st.lex.slice().reverse().map(function(x,ri){var i=st.lex.length-1-ri;return '<article class="lexcard"><small>'+esc(x.type)+' · '+labels[x.mode]+'</small><h3>'+esc(x.text)+'</h3><p>'+esc(x.note)+'</p><div class="cardactions"><button data-copy="'+i+'">نسخ</button><button class="danger" data-del="'+i+'">حذف</button></div></article>'}).join('');$$('[data-copy]').forEach(function(b){b.onclick=function(){if(navigator.clipboard)navigator.clipboard.writeText(st.lex[+b.dataset.copy].text)}});$$('[data-del]').forEach(function(b){b.onclick=function(){st.lex.splice(+b.dataset.del,1);save();lexUI()}})}
 function poemUI(){stats();if(!st.poems.length){$('#poemList').innerHTML='<div class="feedback">لا توجد نصوص محفوظة بعد.</div>';return}$('#poemList').innerHTML=st.poems.slice().reverse().map(function(x,ri){var i=st.poems.length-1-ri;return '<article class="poemcard"><small>'+labels[x.mode]+' · '+esc(x.meter||'بلا بحر محدد')+(x.rhyme?' · روي '+esc(x.rhyme):'')+'</small><h3>'+esc(x.title||'مسودة بلا عنوان')+'</h3><pre>'+esc(x.text)+'</pre><div class="cardactions"><button data-pcopy="'+i+'">نسخ</button><button class="danger" data-pdel="'+i+'">حذف</button></div></article>'}).join('');$$('[data-pcopy]').forEach(function(b){b.onclick=function(){if(navigator.clipboard)navigator.clipboard.writeText(st.poems[+b.dataset.pcopy].text)}});$$('[data-pdel]').forEach(function(b){b.onclick=function(){st.poems.splice(+b.dataset.pdel,1);save();poemUI()}})}
 function savePoem(o){if(!o.text.trim()){alert('اكتب نصًا أولًا.');return}st.poems.push({title:o.title||'مسودة',mode:o.mode||'mixed',meter:o.meter||'',rhyme:o.rhyme||'',text:o.text,date:new Date().toISOString()});save();poemUI();alert('حُفظ النص في قصائدي.')}
-function navigate(id){if(id!=='home')stopReading();$('.page').forEach(function(p){p.classList.toggle('on',p.id===id)});$$('.nav button').forEach(function(b){b.classList.toggle('on',b.dataset.page===id)});scrollTo({top:0,behavior:'smooth'})}
+function navigate(id){if(id!=='home')stopReading();Array.from(document.querySelectorAll('.page')).forEach(function(p){p.classList.toggle('on',p.id===id)});$$('.nav button').forEach(function(b){b.classList.toggle('on',b.dataset.page===id)});scrollTo({top:0,behavior:'smooth'})}
 function bind(){
  $$('.nav button').forEach(function(b){b.onclick=function(){navigate(b.dataset.page)}});
  $$('#modes button').forEach(function(b){b.onclick=function(){st.mode=b.dataset.mode;save();modeUI();dailyUI();if(!$('#reading').classList.contains('hide')){$('#readMode').value=st.mode;readingPoets();$('#readPoet').value='';chooseReading()}}});
