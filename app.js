@@ -5,11 +5,13 @@ var db={get:function(k,d){try{var v=localStorage.getItem('shaer_'+k);return v?JS
 var st={mode:db.get('mode','mixed'),day:db.get('day',1),streak:db.get('streak',1),lex:db.get('lex',[]),poems:db.get('poems',[]),attempts:db.get('attempts',[]),meterKind:'classical',meter:''};
 var labels={classical:'فصيح',nabati:'شعبي',mixed:'مشترك'};
 var daily={
- read:['اقرأ ثلاثة أبيات بصوت مرتفع مرتين، ثم أعد أحدها من الذاكرة. ركّز على الموسيقى لا على التقطيع.','اختر بيتًا يعجبك. اقرأه ببطء ثم سريعًا، وحدد أين تقع النبرة التي تستريح لها الأذن.','اقرأ خمسة أبيات لشاعر واحد، ثم اكتب في سطر واحد ما الذي يميز لغته.'],
+ read:['اقرأ خمسة أبيات لشاعر واحد بصوت مرتفع، ثم حاول إعادة أحدها من الذاكرة.','استمع إلى خمسة أبيات لشاعر واحد، ثم اقرأها ببطء وحدد الكلمات المؤثرة.','اقرأ خمسة أبيات لشاعر واحد، ثم اكتب في سطر واحد ما الذي يميز لغته.'],
  image:['حوّل «اشتقت إلى البيت القديم» إلى صورة فيها شيء يُرى أو يُسمع.','صف مرور الزمن دون استعمال كلمات: زمن، عمر، أيام.','عبّر عن الفرح بصورة غير مباشرة تتجنب كلمة فرح.'],
  rhetoric:['اكتب تشبيهًا واحدًا ثم حاول تحويله إلى استعارة.','اكتب جملة خبرية عادية ثم اجعلها أقوى بالتقديم أو القصر.','اصنع مقابلة بين حالين: القرب/البعد أو الصمت/الكلام.'],
  craft:['اكتب بيتًا أو شطرين بالمعنى أولًا، ثم راجع الوزن بعد الانتهاء.','خذ فكرة بسيطة، اكتب لها ثلاث صيغ، ثم احذف أضعف الكلمات من الصيغة الأقوى.','اكتب بيتًا ثم اسأل عن كل كلمة: هل تخدم المعنى أم الوزن فقط؟']
 };
+var anthology=[{"id":"mutanabbi-azm","mode":"classical","poet":"المتنبي","title":"على قدر أهل العزم","source":"https://www.aldiwan.net/poem10524.html","verses":[["على قدر أهل العزم تأتي العزائم","وتأتي على قدر الكرام المكارم"],["وتعظم في عين الصغير صغارها","وتصغر في عين العظيم العظائم"],["يكلف سيف الدولة الجيش همه","وقد عجزت عنه الجيوش الخضارم"],["ويطلب عند الناس ما عند نفسه","وذلك ما لا تدعيه الضراغم"],["يفدي أتم الطير عمرا سلاحه","نسور الملا أحداثها والقشاعم"]]},{"id":"shafii-friend","mode":"classical","poet":"الإمام الشافعي","title":"إذا المرء لا يرعاك إلا تكلفًا","source":"https://ar.wikisource.org/wiki/إذا_المرء_لا_يرعاك_إلا_تكلفا","verses":[["إذا المرء لا يرعاك إلا تكلفًا","فدعه ولا تكثر عليه التأسفا"],["ففي الناس أبدال وفي الترك راحة","وفي القلب صبر للحبيب ولو جفا"],["فما كل من تهواه يهواك قلبه","ولا كل من صافيته لك قد صفا"],["إذا لم يكن صفو الوداد طبيعة","فلا خير في ود يجيء تكلفا"],["ولا خير في خل يخون خليله","ويلقاه من بعد المودة بالجفا"]]},{"id":"imru-qifa","mode":"classical","poet":"امرؤ القيس","title":"قفا نبك من ذكرى حبيب ومنزل","source":"https://ar.wikisource.org/wiki/قفا_نبك_من_ذكرى_حبيب_ومنزل_(معلقة)","verses":[["قفا نبك من ذكرى حبيب ومنزل","بسقط اللوى بين الدخول فحومل"],["فتوضح فالمقراة لم يعف رسمها","لما نسجتها من جنوب وشمأل"],["ترى بعر الآرام في عرصاتها","وقيعانها كأنه حب فلفل"],["كأني غداة البين يوم تحملوا","لدى سمرات الحي ناقف حنظل"],["وقوفًا بها صحبي علي مطيهم","يقولون لا تهلك أسى وتجمل"]]},{"id":"antara-muallaqa","mode":"classical","poet":"عنترة بن شداد","title":"هل غادر الشعراء من متردم","source":"https://www.aldiwan.net/poem85.html","verses":[["هل غادر الشعراء من متردم","أم هل عرفت الدار بعد توهم"],["يا دار عبلة بالجواء تكلمي","وعمي صباحًا دار عبلة واسلمي"],["فوقفت فيها ناقتي وكأنها","فدن لأقضي حاجة المتلوم"],["وتحل عبلة بالجواء وأهلنا","بالحزن فالصمان فالمتثلم"],["حييت من طلل تقادم عهده","أقوى وأقفر بعد أم الهيثم"]]},{"id":"ibn-labun-ali","mode":"nabati","poet":"محمد بن لعبون","title":"يا علي صحت بالصوت الرفيع","source":"https://www.alriyadh.com/208431","verses":[["يا علي صحت بالصوت الرفيع","يا مره لا تذبين القناع"],["يا علي عندكم صفرا صنيع","سنها يا علي وقم الرباع"],["نشتري يا علي كانك تبيع","بالعمر مير ما ظني تباع"],["شاقني يا علي قمرا وربيع","يوم أنا آمر وكل أمري مطاع"],["يوم أهلنا وأهل مي جميع","نازلين على جال الرفاع"]]},{"id":"rakan-fatri","mode":"nabati","poet":"راكان بن حثلين","title":"يا فاطري","source":"https://folk.aldiwan.net/poems/126335","verses":[["يا فاطري خبي طوارف طميه","إلى زمالك لون خشم الحصاني"],["خبي خبيب الذيب في جرهديه","لي طالع الزيلان واليل داني"],["خبي طميه والرياض العذيه","وتنحري برزان زين المباني"],["تنحري لطام خشم السريه","فرز الوغا لي جا نهار الوحاني"],["آصل أخو نوره لزوم عليه","قبل الحبيب وقبل قاصي وداني"]]},{"id":"rakan-fenjal","mode":"nabati","poet":"راكان بن حثلين","title":"يا ما حلا الفنجال","source":"https://mawdoo3.com/راكان_بن_حثلين_(أمير_وشاعر)","verses":[["يا ما حلا الفنجال مع سيحة البال","في مجلس ما فيه نفس ثقيلة"],["هذا ولد عم وهذا ولد خال","وهذا رفيق ما لقينا مثيله"],["يا ليت رجال يبدل برجال","ويا ليت في بدلا الرياجيل حيله"],["يا بو هلا طير الهوى خبث البال","الطير نزر والحبارى قليله"],["يا الله يا اللي طالبه ما بعد فال","يا اللي من الضيفات نجى دخيله"]]}];
+var currentReading=null, lastReadingId='', readingPlaybackToken=0;
 var imagePrompts=[
  {p:'كبر الأبناء وانشغل كل واحد بحياته، وبقي الأب يشتاق إلى أيام اجتماعهم.',h:'ابحث عن مجلس قديم، باب، أصوات كانت تملأ المكان، أو مقاعد أصبحت فارغة.'},
  {p:'مرت سنوات كثيرة لكن الذكرى ما زالت حاضرة.',h:'اجعل الذكرى شيئًا يقاوم الغياب: نقش، جمر، عطر، ضوء.'},
@@ -48,7 +50,89 @@ function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':
 function save(){db.set('mode',st.mode);db.set('day',st.day);db.set('streak',st.streak);db.set('lex',st.lex);db.set('poems',st.poems);db.set('attempts',st.attempts)}
 function stats(){$('#day').textContent=st.day;$('#streak').textContent=st.streak;$('#wordN').textContent=st.lex.length;$('#poemN').textContent=st.poems.length}
 function modeUI(){$$('#modes button').forEach(function(b){b.classList.toggle('on',b.dataset.mode===st.mode)})}
-function dailyUI(){var m=labels[st.mode];var items=[['الأذن',pick(daily.read)],['الصورة',pick(daily.image)],['البلاغة',pick(daily.rhetoric)],['الصياغة',pick(daily.craft)]];$('#daily').innerHTML=items.map(function(x){return '<article class="daily"><b>'+x[0]+' · '+m+'</b><p>'+x[1]+'</p></article>'}).join('')}
+function dailyUI(){var m=labels[st.mode];var items=[['الأذن',pick(daily.read)],['الصورة',pick(daily.image)],['البلاغة',pick(daily.rhetoric)],['الصياغة',pick(daily.craft)]];$('#daily').innerHTML=items.map(function(x){return '<article class="daily"><b>'+x[0]+' · '+m+'</b><p>'+x[1]+'</p>'+(x[0]==='الأذن'?'<button class="tiny" data-read-five type="button">هات خمسة أبيات للقراءة والاستماع ←</button>':'')+'</article>'}).join('')}
+
+function readingStatus(t){$('#readingStatus').textContent=t||''}
+function stopReading(){
+  readingPlaybackToken++;
+  if('speechSynthesis' in window)window.speechSynthesis.cancel();
+  $('.reading-verse').forEach(function(e){e.classList.remove('active')});
+}
+function readingPool(){
+  var mode=$('#readMode').value,poet=$('#readPoet').value;
+  return anthology.filter(function(x){return (mode==='mixed'||x.mode===mode)&&(!poet||x.poet===poet)});
+}
+function readingPoets(){
+  var sel=$('#readPoet'),old=sel.value,mode=$('#readMode').value;
+  var names=Array.from(new Set(anthology.filter(function(x){return mode==='mixed'||x.mode===mode}).map(function(x){return x.poet})));
+  sel.innerHTML='<option value="">اختيار عشوائي من المكتبة</option>'+names.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join('');
+  if(names.includes(old))sel.value=old;
+}
+function chooseReading(){
+  stopReading();
+  var pool=readingPool();
+  if(!pool.length){readingStatus('لا توجد أبيات مطابقة لهذا الاختيار.');return}
+  var other=pool.filter(function(x){return x.id!==lastReadingId});
+  currentReading=pick(other.length?other:pool);
+  lastReadingId=currentReading.id;
+  var x=currentReading;
+  $('#readingMeta').innerHTML='<h4>'+esc(x.poet)+' <small>· '+esc(labels[x.mode])+'</small></h4><div>'+esc(x.title)+'</div><small>خمسة أبيات كاملة من النص نفسه · <a href="'+esc(x.source)+'" target="_blank" rel="noopener noreferrer">مصدر الأبيات</a></small>';
+  $('#readingVerses').innerHTML=x.verses.map(function(v,i){return '<li class="reading-verse" data-verse="'+i+'"><span class="reading-num">'+(i+1)+'</span><div class="reading-halves"><span class="reading-half">'+esc(v[0])+'</span><span class="reading-half">'+esc(v[1])+'</span></div></li>'}).join('');
+  $('#readingFooter').classList.remove('hide');
+  $('#readingReflection').value='';
+  readingStatus('اختر «استمع للأبيات»، أو اقرأ الأبيات بنفسك ثم سجل ملاحظتك.');
+}
+function openReading(){
+  $('#reading').classList.remove('hide');
+  $('#readMode').value=st.mode;
+  readingPoets();
+  $('#readPoet').value='';
+  chooseReading();
+  $('#reading').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function playReading(){
+  if(!currentReading){readingStatus('اختر خمسة أبيات أولًا.');return}
+  if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window)){readingStatus('القراءة الصوتية غير متاحة في هذا المتصفح. يمكنك قراءة الأبيات المكتوبة.');return}
+  stopReading();
+  var token=readingPlaybackToken,voices=window.speechSynthesis.getVoices();
+  var voice=voices.find(function(v){return /^ar(-SA)?$/i.test(v.lang)})||voices.find(function(v){return /^ar[-_]/i.test(v.lang)})||null;
+  var i=0;
+  function next(){
+    if(token!==readingPlaybackToken)return;
+    if(i>=currentReading.verses.length){$('.reading-verse').forEach(function(el){el.classList.remove('active')});readingStatus('انتهت قراءة الأبيات الخمسة.');return}
+    var verse=currentReading.verses[i],idx=i++;
+    $('.reading-verse').forEach(function(el){el.classList.toggle('active',Number(el.dataset.verse)===idx)});
+    readingStatus('قراءة البيت '+i+' من 5'+(!voice?' · لا يظهر صوت عربي مثبت؛ قد تختلف جودة النطق.':''));
+    var utter=new SpeechSynthesisUtterance(verse[0]+'، '+verse[1]);
+    utter.lang=voice?voice.lang:'ar-SA';
+    if(voice)utter.voice=voice;
+    utter.rate=Number($('#readingRate').value)||0.85;
+    utter.pitch=1;
+    utter.onend=next;
+    utter.onerror=function(e){if(token!==readingPlaybackToken)return;stopReading();readingStatus('تعذر تشغيل الصوت ('+(e.error||'خطأ')+'). تأكد من تفعيل المحرك الصوتي العربي في إعدادات الهاتف.')};
+    window.speechSynthesis.speak(utter);
+  }
+  next();
+}
+function bindReading(){
+  $('#daily').addEventListener('click',function(e){if(e.target.closest('[data-read-five]'))openReading()});
+  $('#closeReading').onclick=function(){stopReading();$('#reading').classList.add('hide')};
+  $('#readMode').onchange=function(){stopReading();readingPoets();$('#readPoet').value='';chooseReading()};
+  $('#readPoet').onchange=chooseReading;
+  $('#selectReading').onclick=chooseReading;
+  $('#readAloud').onclick=playReading;
+  $('#stopReading').onclick=function(){stopReading();readingStatus('توقف الإلقاء. يمكنك إعادة تشغيله.')};
+  $('#readingRate').oninput=function(){$('#readingRateValue').textContent=Number(this.value).toFixed(2)+'×'};
+  $('#saveReadingNote').onclick=function(){
+    var note=$('#readingReflection').value.trim();
+    if(!currentReading)return alert('اختر الأبيات أولًا.');
+    if(!note)return alert('اكتب ملاحظتك أولًا.');
+    st.attempts.push({type:'reading',mode:currentReading.mode,poet:currentReading.poet,title:currentReading.title,text:note,date:Date.now()});
+    save();
+    readingStatus('حُفظت ملاحظتك لهذا التدريب على هذا الجهاز.');
+  };
+}
+
 function imageUI(){var o=imagePrompts[ii%imagePrompts.length];$('#imagePrompt').textContent=o.p;$('#imageHint').classList.add('hide');$('#imageHint').textContent='';$('#imageText').value='';$('#imageTools').innerHTML=['حاسة بصرية','صوت','حركة','مكان','زمن','مفارقة'].map(function(x){return '<span class="chip">'+x+'</span>'}).join('')}
 function rhetoricUI(){$('#lessons').innerHTML=lessons.map(function(r,i){return '<article class="lesson"><button data-i="'+i+'"><span>'+r[0]+'</span><span>＋</span></button><div class="body"><p>'+r[1]+'</p><p><b>مثال:</b> '+r[2]+'</p><p><b>تمرين:</b> '+r[3]+'</p></div></article>'}).join('');$$('.lesson>button').forEach(function(b){b.onclick=function(){b.parentElement.classList.toggle('open')}})}
 function proseUI(){$('#prosePrompt').textContent=prose[pi%prose.length];['#s1','#s2','#s3','#s4'].forEach(function(x){$(x).value=''})}
@@ -56,11 +140,12 @@ function meterUI(){$$('#meterKinds button').forEach(function(b){b.classList.togg
 function lexUI(){stats();if(!st.lex.length){$('#lexList').innerHTML='<div class="feedback">دفترك فارغ. أضف كلمة أو صورة أو تركيبًا أعجبك أثناء القراءة.</div>';return}$('#lexList').innerHTML=st.lex.slice().reverse().map(function(x,ri){var i=st.lex.length-1-ri;return '<article class="lexcard"><small>'+esc(x.type)+' · '+labels[x.mode]+'</small><h3>'+esc(x.text)+'</h3><p>'+esc(x.note)+'</p><div class="cardactions"><button data-copy="'+i+'">نسخ</button><button class="danger" data-del="'+i+'">حذف</button></div></article>'}).join('');$$('[data-copy]').forEach(function(b){b.onclick=function(){if(navigator.clipboard)navigator.clipboard.writeText(st.lex[+b.dataset.copy].text)}});$$('[data-del]').forEach(function(b){b.onclick=function(){st.lex.splice(+b.dataset.del,1);save();lexUI()}})}
 function poemUI(){stats();if(!st.poems.length){$('#poemList').innerHTML='<div class="feedback">لا توجد نصوص محفوظة بعد.</div>';return}$('#poemList').innerHTML=st.poems.slice().reverse().map(function(x,ri){var i=st.poems.length-1-ri;return '<article class="poemcard"><small>'+labels[x.mode]+' · '+esc(x.meter||'بلا بحر محدد')+(x.rhyme?' · روي '+esc(x.rhyme):'')+'</small><h3>'+esc(x.title||'مسودة بلا عنوان')+'</h3><pre>'+esc(x.text)+'</pre><div class="cardactions"><button data-pcopy="'+i+'">نسخ</button><button class="danger" data-pdel="'+i+'">حذف</button></div></article>'}).join('');$$('[data-pcopy]').forEach(function(b){b.onclick=function(){if(navigator.clipboard)navigator.clipboard.writeText(st.poems[+b.dataset.pcopy].text)}});$$('[data-pdel]').forEach(function(b){b.onclick=function(){st.poems.splice(+b.dataset.pdel,1);save();poemUI()}})}
 function savePoem(o){if(!o.text.trim()){alert('اكتب نصًا أولًا.');return}st.poems.push({title:o.title||'مسودة',mode:o.mode||'mixed',meter:o.meter||'',rhyme:o.rhyme||'',text:o.text,date:new Date().toISOString()});save();poemUI();alert('حُفظ النص في قصائدي.')}
-function navigate(id){$$('.page').forEach(function(p){p.classList.toggle('on',p.id===id)});$$('.nav button').forEach(function(b){b.classList.toggle('on',b.dataset.page===id)});scrollTo({top:0,behavior:'smooth'})}
+function navigate(id){if(id!=='home')stopReading();$('.page').forEach(function(p){p.classList.toggle('on',p.id===id)});$$('.nav button').forEach(function(b){b.classList.toggle('on',b.dataset.page===id)});scrollTo({top:0,behavior:'smooth'})}
 function bind(){
  $$('.nav button').forEach(function(b){b.onclick=function(){navigate(b.dataset.page)}});
- $$('#modes button').forEach(function(b){b.onclick=function(){st.mode=b.dataset.mode;save();modeUI();dailyUI()}});
+ $$('#modes button').forEach(function(b){b.onclick=function(){st.mode=b.dataset.mode;save();modeUI();dailyUI();if(!$('#reading').classList.contains('hide')){$('#readMode').value=st.mode;readingPoets();$('#readPoet').value='';chooseReading()}}});
  $('#refresh').onclick=dailyUI;
+ bindReading();
  $('#nextImage').onclick=function(){ii++;imageUI()};
  $('#showImageHint').onclick=function(){var o=imagePrompts[ii%imagePrompts.length];$('#imageHint').innerHTML='<b>اتجاه لا إجابة جاهزة:</b> '+o.h;$('#imageHint').classList.remove('hide')};
  $('#saveImage').onclick=function(){var v=$('#imageText').value.trim();if(!v)return alert('اكتب محاولتك أولًا.');st.attempts.push({type:'image',text:v,date:Date.now()});save();alert('حُفظت المحاولة.')};
