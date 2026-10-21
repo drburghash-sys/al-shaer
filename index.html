@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="الشاعر">
-<title>الشاعر | الفصيح والشعبي</title>
+<title>الشاعر | مدرسة البيت</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="icon" href="icons/icon-192.png">
@@ -16,120 +16,124 @@
 <body>
 <div class="app">
 <header class="top">
-  <div class="brand"><img src="icons/icon-192.png" alt=""><div><h1>الشاعر</h1><small>المعنى أولًا… ثم الصورة والقافية والوزن</small></div></div>
+  <div class="brand"><img src="icons/icon-192.png" alt=""><div><h1>الشاعر</h1><small>نتعلّم من البيت قبل أن نكتب البيت</small></div></div>
   <button id="install" class="ghost hide">تثبيت</button>
 </header>
 
 <main>
-<section id="home" class="page on">
+<section id="today" class="page on">
   <div class="hero">
-    <span class="eyebrow">برنامج 90 يومًا</span>
-    <h2>ابنِ ملكة شعرية واحدة بلسانين</h2>
-    <p>الفصيح والشعبي في خط تعلم واحد: السمع ← المعنى ← الصورة ← اللغة ← القافية ← الوزن ← النقد.</p>
-    <div id="modes" class="seg">
-      <button data-mode="classical">فصيح</button><button data-mode="nabati">شعبي</button><button data-mode="mixed">مشترك</button>
-    </div>
+    <span class="eyebrow">مدرسة البيت · النسخة الثانية</span>
+    <h2>بيت فصيح + بيت شعبي كل يوم</h2>
+    <p>نفهم كيف صنع الشاعر البيت، نحفظ موسيقاه وصورته، ثم نحاكيه ببيت من عندنا. لا تظهر لك التفعيلات التفصيلية لمحاولتك قبل أن تكتشف الخلل وتحاول إصلاحه.</p>
+    <div class="progressLine"><span id="lessonLabel">الدرس ١</span><span id="lessonProgress">٠ / ٧</span></div>
   </div>
-  <div class="stats"><div><b id="day">1</b><span>اليوم من 90</span></div><div><b id="streak">1</b><span>سلسلة التدريب</span></div><div><b id="wordN">0</b><span>في دفتر اللغة</span></div><div><b id="poemN">0</b><span>نص محفوظ</span></div></div>
-  <div class="head"><div><span class="eyebrow">15 دقيقة</span><h3>تدريب اليوم</h3></div><button id="refresh" class="tiny">تمرين جديد</button></div>
-  <div id="daily" class="grid"></div>
-  <section id="reading" class="card reading-panel hide" aria-label="تدريب الأذن بخمسة أبيات">
-    <div class="reading-heading"><div><span class="eyebrow">تدريب الأذن</span><h3>خمسة أبيات من شعر شاعر</h3></div><button id="closeReading" class="ghost tiny" type="button">إغلاق</button></div>
-    <p class="reading-intro">اختر المسار أو اترك التطبيق يختار شاعرًا ونصًا موثّقًا، ثم اقرأ الأبيات أو استمع إليها.</p>
+
+  <div class="lessonNav">
+    <button id="prevLesson" class="ghost">السابق</button>
+    <div class="lessonDots" id="lessonDots"></div>
+    <button id="nextLesson" class="ghost">التالي</button>
+  </div>
+
+  <div id="themeCard" class="themeCard"></div>
+
+  <article class="verseBlock classicalBlock">
+    <div class="verseTop"><div><span class="tag">فصيح</span><h3 id="cPoet"></h3><small id="cPoem"></small></div><span class="meterBadge" id="cMeter"></span></div>
+    <div class="verse" id="cVerse"></div>
+    <a id="cSource" class="sourceLink" target="_blank" rel="noopener">مصدر النص ↗</a>
+    <div class="analysisGrid">
+      <div><b>المعنى</b><p id="cMeaning"></p></div>
+      <div><b>الصورة</b><p id="cImage"></p></div>
+      <div><b>البلاغة</b><p id="cRhetoric"></p></div>
+      <div><b>الصياغة</b><p id="cCraft"></p></div>
+    </div>
+    <div class="meterHint"><b>الإيقاع الذي ستقلّده:</b> <span id="cMeterHint"></span></div>
+  </article>
+
+  <article class="verseBlock folkBlock">
+    <div class="verseTop"><div><span class="tag">شعبي</span><h3 id="fPoet"></h3><small id="fPoem"></small></div><span class="meterBadge" id="fMeter"></span></div>
+    <div class="verse" id="fVerse"></div>
+    <a id="fSource" class="sourceLink" target="_blank" rel="noopener">مصدر النص ↗</a>
+    <div class="analysisGrid">
+      <div><b>المعنى</b><p id="fMeaning"></p></div>
+      <div><b>الصورة</b><p id="fImage"></p></div>
+      <div><b>البلاغة</b><p id="fRhetoric"></p></div>
+      <div><b>الصياغة</b><p id="fCraft"></p></div>
+    </div>
+    <div class="meterHint"><b>الإيقاع الذي ستقلّده:</b> <span id="fMeterHint"></span></div>
+  </article>
+
+  <section class="card memory">
+    <div class="sectionHead"><div><span class="eyebrow">الحفظ</span><h3>أغلق البيتين واسترجعهما</h3></div><button id="toggleVerses" class="ghost">إخفاء البيتين</button></div>
     <div class="two">
-      <label>نوع الشعر<select id="readMode"><option value="classical">فصيح</option><option value="nabati">شعبي</option><option value="mixed">مشترك (فصيح وشعبي)</option></select></label>
-      <label>الشاعر<select id="readPoet"><option value="">اختيار عشوائي</option></select></label>
+      <label>اكتب البيت الفصيح من الذاكرة<textarea id="recallC"></textarea><span id="recallCResult" class="micro"></span></label>
+      <label>اكتب البيت الشعبي من الذاكرة<textarea id="recallF"></textarea><span id="recallFResult" class="micro"></span></label>
     </div>
-    <div class="actions reading-actions">
-      <button id="selectReading" class="primary" type="button">اختر خمسة أبيات</button>
-      <button id="readAloud" type="button">▶ استمع للأبيات</button>
-      <button id="stopReading" class="ghost" type="button">■ إيقاف</button>
-    </div>
-    <div id="readingMeta" class="reading-meta" aria-live="polite"></div>
-    <ol id="readingVerses" class="reading-verses"></ol>
-    <div class="reading-footer hide" id="readingFooter">
-      <div class="reading-settings"><label for="readingRate">سرعة القراءة</label><input id="readingRate" type="range" min="0.65" max="1.15" step="0.05" value="0.85"><output id="readingRateValue">0.85×</output></div>
-      <p class="reading-hint">النطق الآلي يعتمد على الأصوات العربية المثبّتة بجهازك، وقد لا يُجيد اللهجة النبطية أو وزن البيت. تأمل إيقاع الشعر بصوتك أيضًا.</p>
-      <label>ماذا لاحظت في لغة الشاعر أو صورته؟<textarea id="readingReflection" placeholder="اكتب سطرًا واحدًا يصف أسلوب الشاعر…"></textarea></label>
-      <button id="saveReadingNote" class="primary" type="button">احفظ ملاحظتي</button>
-    </div>
-    <div id="readingStatus" class="reading-status" role="status" aria-live="polite"></div>
+    <button id="checkRecall" class="primary full">تحقق من الحفظ</button>
   </section>
-  <div class="note"><b>قاعدة التطبيق</b><p>لا تبدأ بالتفعيلة ثم تبحث عن الكلمات. ابدأ بالمعنى والصورة، ثم هذّب العبارة بالوزن.</p></div>
-</section>
 
-<section id="image" class="page">
-  <div class="title"><span class="eyebrow">صانع الصورة</span><h2>قل المعنى بطريقة تُرى</h2><p>اكتب الصورة قبل أن تفكر في الوزن.</p></div>
-  <div class="card"><div class="prompt"><small>المعنى الخام</small><h3 id="imagePrompt"></h3></div>
-    <textarea id="imageText" placeholder="حوّل الفكرة إلى مشهد أو صورة حسية…"></textarea>
-    <div id="imageTools" class="chips"></div>
-    <div class="actions"><button id="saveImage" class="primary">احفظ محاولتي</button><button id="showImageHint">أرني اتجاهًا ممكنًا</button><button id="nextImage" class="ghost">التالي</button></div>
-    <div id="imageHint" class="feedback hide"></div>
-  </div>
-</section>
+  <section class="card imitate">
+    <div class="sectionHead"><div><span class="eyebrow">المحاكاة</span><h3>الآن اكتب أنت</h3></div></div>
+    <p class="muted">اكتب معنى جديدًا على إيقاع البيت. لا تحاول ملء التفعيلات كلمةً كلمة. اكتب البيت أولًا كما تسمعه في أذنك، ثم افحصه.</p>
 
-<section id="rhetoric" class="page">
-  <div class="title"><span class="eyebrow">بلاغة تطبيقية</span><h2>افهمها بالاستعمال لا بالتعريف فقط</h2><p>ثمانية أبواب، وفي كل باب فكرة ومثال وتمرين.</p></div>
-  <div id="lessons" class="lessons"></div>
-</section>
-
-<section id="prose" class="page">
-  <div class="title"><span class="eyebrow">من النثر إلى الشعر</span><h2>لا تبدأ بالتفعيلة</h2><p>مرّر الفكرة على أربع مراحل ثم اكتب البيت.</p></div>
-  <div class="card">
-    <div class="prompt"><small>الفكرة</small><h3 id="prosePrompt"></h3></div>
-    <div class="steps">
-      <label><b>1</b> قلها بعبارة جميلة بلا وزن<textarea id="s1"></textarea></label>
-      <label><b>2</b> أضف صورة أو مفارقة<textarea id="s2"></textarea></label>
-      <label><b>3</b> احذف الحشو واختر ألفاظًا أدق<textarea id="s3"></textarea></label>
-      <label><b>4</b> الآن صغ بيتًا أو شطرين<textarea id="s4"></textarea></label>
+    <div class="attemptBox">
+      <div class="attemptTitle"><b>محاكاة الفصيح</b><span id="cTarget"></span></div>
+      <textarea id="tryC" placeholder="اكتب بيتك الفصيح هنا… ويفضل فصل الشطرين بعلامة / أو بسطر جديد"></textarea>
+      <div class="actions"><button id="checkC" class="primary">افحص الإيقاع</button><button id="correctedC" class="ghost hide">صححت البيت — أعد الفحص</button><button id="showPatternC" class="secondary hide">أظهر التفعيلات الآن</button></div>
+      <div id="feedbackC" class="feedback hide"></div>
+      <div id="patternC" class="patternBox hide"></div>
     </div>
-    <div class="actions"><button id="saveProse" class="primary">احفظ كنص</button><button id="nextProse" class="ghost">فكرة أخرى</button></div>
-  </div>
+
+    <div class="attemptBox">
+      <div class="attemptTitle"><b>محاكاة الشعبي</b><span id="fTarget"></span></div>
+      <textarea id="tryF" placeholder="اكتب بيتك الشعبي هنا… واكتبه كما تنطقه"></textarea>
+      <div class="actions"><button id="checkF" class="primary">افحص الإيقاع</button><button id="correctedF" class="ghost hide">صححت البيت — أعد الفحص</button><button id="showPatternF" class="secondary hide">أظهر الوزن المرجعي الآن</button></div>
+      <div id="feedbackF" class="feedback hide"></div>
+      <div id="patternF" class="patternBox hide"></div>
+    </div>
+
+    <button id="finishLesson" class="finishBtn">✓ حفظت البيتين وأنهيت درس اليوم</button>
+  </section>
 </section>
 
-<section id="meter" class="page">
-  <div class="title"><span class="eyebrow">الوزن والقافية</span><h2>الوزن يأتي بعد المعنى</h2><p>الدليل هنا للتدريب. الفحص الآلي مساعد، وليس حكمًا عروضيًا نهائيًا على النص غير المشكول.</p></div>
-  <div class="seg" id="meterKinds"><button data-kind="classical">الفصيح</button><button data-kind="nabati">الشعبي</button></div>
-  <div id="meters" class="metergrid"></div>
+<section id="review" class="page">
+  <div class="title"><span class="eyebrow">مراجعة متباعدة</span><h2>لا نترك البيت يخرج من الذاكرة</h2><p>المراجعة بعد ١، ٣، ٧، ١٤، ثم ٣٠ يومًا. في كل مرة يقلّ المساعد.</p></div>
+  <div id="reviewSummary" class="stats3"></div>
+  <div id="reviewDue" class="stack"></div>
+  <div class="card"><button id="randomReview" class="secondary full">اختبار عشوائي الآن</button><div id="randomReviewBox" class="hide"></div></div>
+</section>
+
+<section id="write" class="page">
+  <div class="title"><span class="eyebrow">المعمل</span><h2>اكتب بعيدًا عن ضغط التفعيلة</h2><p>اختر نموذجًا، اكتب المعنى والصورة أولًا، ثم البيت. التطبيق يسجل أخطاءك الإيقاعية المحتملة لتعرف نمط ضعفك.</p></div>
   <div class="card">
-    <label>اكتب البيت<textarea id="meterText" placeholder="اكتب بيتك هنا…"></textarea></label>
-    <div class="two"><label>حرف الروي<input id="rhyme" maxlength="2" placeholder="م"></label><label>البحر المختار<input id="chosenMeter" readonly></label></div>
-    <div class="actions"><button id="meterHelp" class="primary">تحليل مساعد</button><button id="meterSave">أضف إلى قصائدي</button></div>
-    <div id="meterFeedback" class="feedback hide"></div>
+    <label>الفكرة التي تريد قولها<textarea id="freeIdea" placeholder="مثال: اشتقت لمجلس قديم كان يجمع الأهل"></textarea></label>
+    <label>الصورة قبل الوزن<textarea id="freeImage" placeholder="حوّل الفكرة إلى شيء يُرى أو يُسمع أو يتحرك"></textarea></label>
+    <div class="two"><label>المسار<select id="freeKind"><option value="classical">فصيح</option><option value="folk">شعبي</option></select></label><label>النموذج<select id="freeMeter"></select></label></div>
+    <label>البيت<textarea id="freeVerse" placeholder="اكتب البيت بعد أن يتضح المعنى والصورة"></textarea></label>
+    <div class="actions"><button id="freeCheck" class="primary">مراجعة أولى</button><button id="saveDraft" class="secondary">حفظ المسودة</button></div>
+    <div id="freeFeedback" class="feedback hide"></div>
   </div>
+
+  <div class="sectionHead"><div><span class="eyebrow">مرآة الأخطاء</span><h3>ما الذي يتكرر عندك؟</h3></div></div>
+  <div id="errorMirror" class="mirror"></div>
+
+  <div class="sectionHead"><div><span class="eyebrow">مسوداتك</span><h3>نصوص محفوظة على هذا الجهاز</h3></div></div>
+  <div id="drafts" class="stack"></div>
 </section>
 
-<section id="lexicon" class="page">
-  <div class="title"><span class="eyebrow">دفتر اللغة</span><h2>ابنِ معجمك الشخصي</h2><p>الكلمة التي لا تستخدمها لا تصبح جزءًا من سليقتك.</p></div>
-  <div class="card compact">
-    <div class="two"><label>كلمة أو تعبير<input id="lexText" placeholder="مثل: أرخى الليل سدوله"></label><label>النوع<select id="lexType"><option>صورة</option><option>لفظ</option><option>تركيب</option><option>قافية</option></select></label></div>
-    <div class="two"><label>المسار<select id="lexMode"><option value="mixed">مشترك</option><option value="classical">فصيح</option><option value="nabati">شعبي</option></select></label><label>ملاحظة<input id="lexNote" placeholder="المعنى أو موضع الاستعمال"></label></div>
-    <button id="addLex" class="primary full">إضافة إلى الدفتر</button>
-  </div>
-  <div class="head"><h3>بطاقاتك</h3><button id="quizLex" class="tiny">مراجعة عشوائية</button></div>
-  <div id="lexList" class="grid"></div>
-</section>
-
-<section id="poems" class="page">
-  <div class="title"><span class="eyebrow">قصائدي ومسوداتي</span><h2>احتفظ بالنص ثم ارجع إليه بعين الناقد</h2></div>
-  <div class="card compact">
-    <div class="two"><label>العنوان<input id="poemTitle" placeholder="عنوان المسودة"></label><label>النوع<select id="poemMode"><option value="classical">فصيح</option><option value="nabati">شعبي</option><option value="mixed">غير محدد</option></select></label></div>
-    <div class="two"><label>البحر<input id="poemMeter" placeholder="مثل: الكامل / المسحوب"></label><label>الروي<input id="poemRhyme" maxlength="2"></label></div>
-    <textarea id="poemText" class="poemarea" placeholder="اكتب نصك…"></textarea>
-    <button id="savePoem" class="primary full">حفظ النص</button>
-  </div>
-  <div id="poemList" class="stack"></div>
+<section id="meters" class="page">
+  <div class="title"><span class="eyebrow">مكتبة الأوزان</span><h2>مرجع مستقل للفصيح والشعبي</h2><p>المكتبة تبقى مرجعًا. في التدريب اليومي لا نسمح لها أن تقود الكتابة قبل المعنى.</p></div>
+  <div class="tabs"><button data-meter-tab="classical" class="on">الفصيح</button><button data-meter-tab="folk">الشعبي</button></div>
+  <div id="meterLibrary" class="meterLibrary"></div>
+  <div class="note"><b>ملاحظة في الشعبي</b><p>تسميات الأوزان وصورها قد تختلف بين مدارس الرواية والأداء. لذلك نثبت الاسم حين يكون موثقًا، ونربط الوزن بالنطق والسماع لا بالرسم الإملائي وحده.</p></div>
 </section>
 </main>
 
 <nav class="nav">
-<button data-page="home" class="on"><span>⌂</span>اليوم</button>
-<button data-page="image"><span>✦</span>الصورة</button>
-<button data-page="rhetoric"><span>◈</span>البلاغة</button>
-<button data-page="prose"><span>↝</span>الصياغة</button>
-<button data-page="meter"><span>≋</span>الوزن</button>
-<button data-page="lexicon"><span>▤</span>دفتري</button>
-<button data-page="poems"><span>✎</span>قصائدي</button>
+<button data-page="today" class="on"><span>◉</span>درس اليوم</button>
+<button data-page="review"><span>↻</span>المراجعة</button>
+<button data-page="write"><span>✎</span>اكتب</button>
+<button data-page="meters"><span>≋</span>الأوزان</button>
 </nav>
 </div>
 <script src="app.js"></script>
