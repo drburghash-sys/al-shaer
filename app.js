@@ -1,164 +1,214 @@
 (function(){
 'use strict';
-var $=function(s){return document.querySelector(s)}, $$=function(s){return Array.from(document.querySelectorAll(s))};
-var db={get:function(k,d){try{var v=localStorage.getItem('shaer_'+k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){localStorage.setItem('shaer_'+k,JSON.stringify(v))}};
-var st={mode:db.get('mode','mixed'),day:db.get('day',1),streak:db.get('streak',1),lex:db.get('lex',[]),poems:db.get('poems',[]),attempts:db.get('attempts',[]),meterKind:'classical',meter:''};
-var labels={classical:'فصيح',nabati:'شعبي',mixed:'مشترك'};
-var daily={
- read:['اقرأ خمسة أبيات لشاعر واحد بصوت مرتفع، ثم حاول إعادة أحدها من الذاكرة.','استمع إلى خمسة أبيات لشاعر واحد، ثم اقرأها ببطء وحدد الكلمات المؤثرة.','اقرأ خمسة أبيات لشاعر واحد، ثم اكتب في سطر واحد ما الذي يميز لغته.'],
- image:['حوّل «اشتقت إلى البيت القديم» إلى صورة فيها شيء يُرى أو يُسمع.','صف مرور الزمن دون استعمال كلمات: زمن، عمر، أيام.','عبّر عن الفرح بصورة غير مباشرة تتجنب كلمة فرح.'],
- rhetoric:['اكتب تشبيهًا واحدًا ثم حاول تحويله إلى استعارة.','اكتب جملة خبرية عادية ثم اجعلها أقوى بالتقديم أو القصر.','اصنع مقابلة بين حالين: القرب/البعد أو الصمت/الكلام.'],
- craft:['اكتب بيتًا أو شطرين بالمعنى أولًا، ثم راجع الوزن بعد الانتهاء.','خذ فكرة بسيطة، اكتب لها ثلاث صيغ، ثم احذف أضعف الكلمات من الصيغة الأقوى.','اكتب بيتًا ثم اسأل عن كل كلمة: هل تخدم المعنى أم الوزن فقط؟']
-};
-var anthology=[{"id":"mutanabbi-azm","mode":"classical","poet":"المتنبي","title":"على قدر أهل العزم","source":"https://www.aldiwan.net/poem10524.html","verses":[["على قدر أهل العزم تأتي العزائم","وتأتي على قدر الكرام المكارم"],["وتعظم في عين الصغير صغارها","وتصغر في عين العظيم العظائم"],["يكلف سيف الدولة الجيش همه","وقد عجزت عنه الجيوش الخضارم"],["ويطلب عند الناس ما عند نفسه","وذلك ما لا تدعيه الضراغم"],["يفدي أتم الطير عمرا سلاحه","نسور الملا أحداثها والقشاعم"]]},{"id":"shafii-friend","mode":"classical","poet":"الإمام الشافعي","title":"إذا المرء لا يرعاك إلا تكلفًا","source":"https://ar.wikisource.org/wiki/إذا_المرء_لا_يرعاك_إلا_تكلفا","verses":[["إذا المرء لا يرعاك إلا تكلفًا","فدعه ولا تكثر عليه التأسفا"],["ففي الناس أبدال وفي الترك راحة","وفي القلب صبر للحبيب ولو جفا"],["فما كل من تهواه يهواك قلبه","ولا كل من صافيته لك قد صفا"],["إذا لم يكن صفو الوداد طبيعة","فلا خير في ود يجيء تكلفا"],["ولا خير في خل يخون خليله","ويلقاه من بعد المودة بالجفا"]]},{"id":"imru-qifa","mode":"classical","poet":"امرؤ القيس","title":"قفا نبك من ذكرى حبيب ومنزل","source":"https://ar.wikisource.org/wiki/قفا_نبك_من_ذكرى_حبيب_ومنزل_(معلقة)","verses":[["قفا نبك من ذكرى حبيب ومنزل","بسقط اللوى بين الدخول فحومل"],["فتوضح فالمقراة لم يعف رسمها","لما نسجتها من جنوب وشمأل"],["ترى بعر الآرام في عرصاتها","وقيعانها كأنه حب فلفل"],["كأني غداة البين يوم تحملوا","لدى سمرات الحي ناقف حنظل"],["وقوفًا بها صحبي علي مطيهم","يقولون لا تهلك أسى وتجمل"]]},{"id":"antara-muallaqa","mode":"classical","poet":"عنترة بن شداد","title":"هل غادر الشعراء من متردم","source":"https://www.aldiwan.net/poem85.html","verses":[["هل غادر الشعراء من متردم","أم هل عرفت الدار بعد توهم"],["يا دار عبلة بالجواء تكلمي","وعمي صباحًا دار عبلة واسلمي"],["فوقفت فيها ناقتي وكأنها","فدن لأقضي حاجة المتلوم"],["وتحل عبلة بالجواء وأهلنا","بالحزن فالصمان فالمتثلم"],["حييت من طلل تقادم عهده","أقوى وأقفر بعد أم الهيثم"]]},{"id":"ibn-labun-ali","mode":"nabati","poet":"محمد بن لعبون","title":"يا علي صحت بالصوت الرفيع","source":"https://www.alriyadh.com/208431","verses":[["يا علي صحت بالصوت الرفيع","يا مره لا تذبين القناع"],["يا علي عندكم صفرا صنيع","سنها يا علي وقم الرباع"],["نشتري يا علي كانك تبيع","بالعمر مير ما ظني تباع"],["شاقني يا علي قمرا وربيع","يوم أنا آمر وكل أمري مطاع"],["يوم أهلنا وأهل مي جميع","نازلين على جال الرفاع"]]},{"id":"rakan-fatri","mode":"nabati","poet":"راكان بن حثلين","title":"يا فاطري","source":"https://folk.aldiwan.net/poems/126335","verses":[["يا فاطري خبي طوارف طميه","إلى زمالك لون خشم الحصاني"],["خبي خبيب الذيب في جرهديه","لي طالع الزيلان واليل داني"],["خبي طميه والرياض العذيه","وتنحري برزان زين المباني"],["تنحري لطام خشم السريه","فرز الوغا لي جا نهار الوحاني"],["آصل أخو نوره لزوم عليه","قبل الحبيب وقبل قاصي وداني"]]},{"id":"rakan-fenjal","mode":"nabati","poet":"راكان بن حثلين","title":"يا ما حلا الفنجال","source":"https://www.alriyadh.com/755085","verses":[["يا ما حلا الفنجال مع سيحة البال","في مجلس ما فيه نفس ثقيلة"],["هذا ولد عم وهذا ولد خال","وهذا رفيق ما لقينا مثيله"],["يا ليت رجال يبدل برجال","ويا ليت في بدلا الرجاجيل حيله"],["يا بو هلا طير الهوى خبث البال","الطير نزر والحبارى قليله"],["يا الله يا اللي طالبه ما بعد فال","يا اللي من الضيقات نجى دخيله"]]}];
-var currentReading=null, lastReadingId='', readingPlaybackToken=0;
-var imagePrompts=[
- {p:'كبر الأبناء وانشغل كل واحد بحياته، وبقي الأب يشتاق إلى أيام اجتماعهم.',h:'ابحث عن مجلس قديم، باب، أصوات كانت تملأ المكان، أو مقاعد أصبحت فارغة.'},
- {p:'مرت سنوات كثيرة لكن الذكرى ما زالت حاضرة.',h:'اجعل الذكرى شيئًا يقاوم الغياب: نقش، جمر، عطر، ضوء.'},
- {p:'شخص يخفي حزنه أمام الناس.',h:'استخدم تضاد الظاهر والباطن: وجه هادئ وقلب مضطرب، أو نافذة مضيئة وبيت معتم.'},
- {p:'الطريق إلى الهدف طويل لكنه يستحق.',h:'حوّل الهدف إلى قمة أو ضوء أو باب، والطريق إلى تعب محسوس.'},
- {p:'الوفاء يبقى حتى مع البعد.',h:'اجعل الوفاء خيطًا أو عهدًا أو جذورًا لا يقطعها السفر.'}
-];
+var $=function(s){return document.querySelector(s)},$$=function(s){return Array.from(document.querySelectorAll(s))};
+var DB={get:function(k,d){try{var v=localStorage.getItem('shaer2_'+k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){localStorage.setItem('shaer2_'+k,JSON.stringify(v))}};
+var reviewIntervals=[1,3,7,14,30];
+
 var lessons=[
- ['التشبيه','ربط صورتين لاشتراكهما في صفة، بأداة ظاهرة أو مقدرة.','كأنَّ الصبرَ في صدره جبلٌ لا تهزّه الريح.','اكتب تشبيهًا للانتظار الطويل.'],
- ['الاستعارة','تشبيه حُذف أحد طرفيه، فيصير التصوير أكثر اندماجًا بالمعنى.','أوقد الشوقُ في القلب نافذةً لا تنام.','شبّه الحنين بالنار دون ذكر كلمة مثل أو كأن.'],
- ['الكناية','تعبير يقصد معنى بطريق غير مباشر مع إمكان إرادة المعنى الظاهر.','فلانٌ طويلُ النجاد؛ يراد بها طول القامة في الاستعمال القديم.','عبّر عن الكرم دون استعمال كلمة كريم.'],
- ['الطباق','جمع لفظين متضادين لتقوية المفارقة وإبراز المعنى.','أضحك في العلن وأبكي في الخفاء.','اكتب جملة فيها تضاد بين الليل والنهار.'],
- ['المقابلة','جمع معنيين أو أكثر ثم الإتيان بما يقابلها على الترتيب.','نقرب عند الرخاء، ونصبر عند الشدة.','اصنع مقابلة بين حال السفر وحال العودة.'],
- ['القصر','تخصيص أمر بآخر بأسلوب مثل: إنما، ما…إلا، أو التقديم بحسب السياق.','ما بقي من الدار إلا صداها.','حوّل: الذكرى تسكن القلب، إلى صيغة قصر.'],
- ['التقديم والتأخير','تغيير ترتيب عناصر الجملة لإبراز عنصر بعينه أو خدمة السياق والإيقاع.','في القلبِ منزلك؛ قُدّم الجار والمجرور لإبرازه.','اكتب جملتين للمعنى نفسه وغيّر ما تقدمه فيهما.'],
- ['الحذف والإيجاز','ترك ما يفهم من السياق أو تقليل الكلمات مع بقاء المعنى قويًا.','سألتُ الدارَ… فسكتت.','اكتب عبارة من عشر كلمات ثم اختصرها إلى ست دون خسارة المعنى.']
+{
+ id:'d1',theme:'الحنين يبدأ من مكان محسوس',focus:'لا تقل «أشتاق» فقط؛ اجعل للحنين مكانًا وصوتًا وصورة.',
+ classical:{poet:'امرؤ القيس',poem:'معلقة امرئ القيس',a:'قِفا نَبكِ مِن ذِكرى حَبيبٍ وَمَنزِلِ',b:'بِسِقطِ اللِّوى بَينَ الدَّخولِ فَحَومَلِ',meter:'الطويل',pattern:'فعولن مفاعيلن فعولن مفاعلن',rhyme:'ل',source:'https://qafiyah.com/poems/rHUD',meaning:'يطلب من صاحبيه الوقوف معه ليستعيد ذكرى الحبيب والمنزل في مواضع محددة.',image:'الذكرى ليست فكرة عائمة؛ صارت أرضًا يقف عليها الشاعر ويشير إلى معالمها.',rhetoric:'«قِفا» أمر خرج إلى الالتماس والمشاركة، وفي الجمع بين الحبيب والمنزل ربطٌ بين العاطفة والمكان.',craft:'بدأ بفعل قصير قوي، ثم نقلنا فورًا من الانفعال إلى مكان محدد؛ لذلك لا يبدو الحزن تقريرًا مجردًا.'},
+ folk:{poet:'محمد بن لعبون',poem:'يا علي',a:'يا علي صحت بالصوت الرفيع',b:'يا مرّة لا تذبّين القناع',meter:'المديد الشعبي / اللعبوني',pattern:'نموذج المديد في الأداء الشعبي؛ يُحفظ بالنطق والإيقاع قبل التقطيع',rhyme:'ع',source:'https://folk.aldiwan.net/poems/126322',meaning:'ينادي صاحبه بصوت مرتفع طالبًا منه أن يبلغ المرأة ألا تسدل القناع.',image:'النداء العالي والقناع يصنعان مشهدًا مسموعًا ومرئيًا بدل وصف الشوق مباشرة.',rhetoric:'نداء وأمر، مع تكرار «يا» الذي يرفع حرارة الخطاب ويعطيه جرسًا غنائيًا.',craft:'دخل إلى المشهد مباشرة بالنداء، ولم يمهّد بشرح مشاعره؛ الحركة سبقت التفسير.'}
+},
+{
+ id:'d2',theme:'التشبيه لا يزيّن المعنى؛ بل يجعله يُرى',focus:'ابحث عن شيء محسوس يشبه أثر المعنى، لا عن صفة عامة.',
+ classical:{poet:'طرفة بن العبد',poem:'معلقة طرفة',a:'لِخَولةَ أطلالٌ ببُرقةِ ثَهمَدِ',b:'تلوحُ كباقي الوَشمِ في ظاهرِ اليدِ',meter:'الطويل',pattern:'فعولن مفاعيلن فعولن مفاعلن',rhyme:'د',source:'https://qafiyah.com/poems/xjIC',meaning:'يرى آثار ديار خولة في برقة ثهمد، وما بقي منها يظهر خافتًا.',image:'شبّه بقايا الأطلال بأثر الوشم الباقي على ظاهر اليد؛ صورة دقيقة للشيء الذي بهت ولم يختف.',rhetoric:'تشبيه صريح بأداة الكاف: الأطلال الباقية كأثر الوشم.',craft:'اختار تشبيهًا يطابق درجة الظهور لا شكل المكان فقط؛ «تلوح» و«باقي الوشم» يعملان معًا.'},
+ folk:{poet:'محمد بن لعبون',poem:'يا علي',a:'شاقني يا علي قمرا وربيع',b:'يوم أنا آمر وكل أمري مطاع',meter:'المديد الشعبي / اللعبوني',pattern:'نموذج المديد في الأداء الشعبي؛ راقب الجرس وتساوي النفس',rhyme:'ع',source:'https://folk.aldiwan.net/poems/126322',meaning:'يستعيد زمنًا جميلاً جمع في ذاكرته البدر والربيع والقوة والقبول.',image:'«قمر وربيع» صورتان للبهاء والخصب، اختصر بهما زمنًا كاملًا من السعادة.',rhetoric:'تكثيف رمزي؛ القمر والربيع ليسا مجرد زمنين بل علامتان للجمال والامتلاء.',craft:'بدل أن يقول «اشتقت لأيام جميلة» وضع أمامنا قمرًا وربيعًا ثم أعقبهما بسبب شخصي.'}
+},
+{
+ id:'d3',theme:'خاطب الصامت كي تكشف قوة الغياب',focus:'التشخيص يجعل المكان شريكًا في التجربة.',
+ classical:{poet:'زهير بن أبي سلمى',poem:'معلقة زهير',a:'أَمِن أُمِّ أَوفى دِمنَةٌ لَم تَكَلَّمِ',b:'بِحَومانَةِ الدُرّاجِ فَالمُتَثَلَّمِ',meter:'الطويل',pattern:'فعولن مفاعيلن فعولن مفاعلن',rhyme:'م',source:'https://qafiyah.com/poems/gnNg',meaning:'يتساءل عن بقايا ديار أم أوفى التي صمتت ولم تجبه.',image:'الخرائب تبدو ككائن كان يمكن أن يتكلم لكنه اختار الصمت.',rhetoric:'استفهام، وتشخيص ضمني في إسناد الكلام إلى الدمنة ثم نفيه عنها.',craft:'حوّل غياب البشر إلى صمتٍ للمكان؛ فصار الفراغ نفسه جزءًا من المعنى.'},
+ folk:{poet:'تركي بن حميد',poem:'وصية لعبيد',a:'ياما حلا يا عبيد في وقت الاسفار',b:'جذب الفراش وشبّ ضوّ المناره',meter:'المسحوب',pattern:'مستفعلن مستفعلن فاعلاتن — مع مراعاة النطق الشعبي',rhyme:'ر',source:'https://www.alduwaser.org/vb/showthread.php?t=360',meaning:'يصف متعة وقت السحر حين ينهض الرجل ويشعل النار ويهيئ مجلسه.',image:'الفراش والنار وضوء المنارة تفاصيل يومية تحوّل الحكمة إلى مشهد حي.',rhetoric:'افتتاح تعجبي «ياما حلا» ثم تعداد أفعال حسية متتابعة.',craft:'لم يقل «السحر جميل»؛ أعطاك سلسلة أفعال صغيرة تجعلك تعيش اللحظة.'}
+},
+{
+ id:'d4',theme:'الزمن يظهر في أثره لا في اسمه',focus:'بدل قول «مر الزمن» صف ما صنعه في المكان أو الجسد.',
+ classical:{poet:'لبيد بن ربيعة',poem:'معلقة لبيد',a:'عَفَتِ الدِّيارُ مَحَلُّها فَمُقامُها',b:'بِمِنىً تَأَبَّدَ غَوْلُها فَرِجامُها',meter:'الكامل',pattern:'متفاعلن متفاعلن متفاعلن',rhyme:'م',source:'https://maatharah.com/poetry-guide/poem-analysis/labid-muallaqa.html',meaning:'درست الديار وخَلَت مواضع الحلول والإقامة، واستوحشت الأماكن التي يسميها.',image:'الزمن لا يظهر لفظًا؛ أثره هو المحو والوحشة.',rhetoric:'مراعاة نظير بين «محلها فمقامها» وتتابع أسماء المواضع، مع قوة الفعل «عفت».',craft:'افتتح بالفعل الذي يحمل النتيجة كاملة، ثم وسّع الصورة بالمكان؛ لا حشو ولا شرح زائد.'},
+ folk:{poet:'تركي بن حميد',poem:'يا راكب اللي بقلهن قد تثنّى',a:'يا راكب اللي بقلهن قد تثنّى',b:'فجّ العضود مدمّثات المحاصير',meter:'المسحوب',pattern:'مستفعلن مستفعلن فاعلاتن — بحسب النطق الشعبي',rhyme:'ر',source:'https://www.alsh3r.com/poems/view/29316',meaning:'ينادي راكبًا على نوق موصوفة بالقوة والهيئة، تمهيدًا للرسالة والحركة.',image:'الوصف يركّز على الجسد والحركة، فيرى السامع المطية قبل أن تبدأ الرحلة.',rhetoric:'نداء ووصف متتابع، وفي اختيار الصفات تكثيف للحركة والقوة.',craft:'في شعر الرحلة لا يبدأ بالهدف وحده؛ يصنع وسيلة الرحلة نفسها لتصبح جزءًا من البطولة.'}
+},
+{
+ id:'d5',theme:'ابدأ بسؤال أو صورة تفتح المعنى بدل أن تغلقه',focus:'البيت القوي يترك للقارئ مساحة يشارك فيها.',
+ classical:{poet:'عنترة بن شداد',poem:'معلقة عنترة',a:'هَل غادَرَ الشُعَراءُ مِن مُتَرَدَّمِ',b:'أَم هَل عَرَفتَ الدارَ بَعدَ تَوَهُّمِ',meter:'الكامل',pattern:'متفاعلن متفاعلن متفاعلن',rhyme:'م',source:'https://qafiyah.com/poems/iaqM',meaning:'يسأل: هل ترك الشعراء السابقون معنى لم يقولوه؟ ثم يحاول التعرف إلى الدار بعد التباسها.',image:'ينتقل من «ترميم» ما تركه السابقون إلى محاولة تمييز دار باهتة؛ سؤالان يفتحان القصيدة.',rhetoric:'استفهامان متتابعان؛ الأول نقدي عن الشعر، والثاني وجداني عن المكان.',craft:'بدل ادعاء التجديد، بدأ بالشك في إمكان التجديد نفسه؛ وهذا يصنع توترًا ذكيًا.'},
+ folk:{poet:'محسن الهزاني',poem:'بروق تلالا',a:'يالله بنو مدلهم الخيالا',b:'طافح ربابه مثل شرد المها الزرق',meter:'المسحوب',pattern:'مستفعلن مستفعلن فاعلاتن — نموذج شائع للمسحوب',rhyme:'ق',source:'https://www.aljblan.net/vb/showthread.php?t=4491',meaning:'يدعو الله بسحاب كثيف ممتلئ بالمطر، ثم يشبه منظره بقطيع المها المتفرق.',image:'السحاب يتحول إلى كائنات بيضاء متحركة في السماء؛ صورة واسعة وحية.',rhetoric:'تشبيه صريح «مثل شرد المها الزرق» بعد تمهيد بصري للسحاب.',craft:'بنى الصورة على اللون والحركة والامتلاء، لذلك صار الدعاء مشهدًا لا عبارة مجردة.'}
+},
+{
+ id:'d6',theme:'النبرة الإنشائية تعطي البيت قوة فورية',focus:'الأمر والنداء والاستفهام أدوات بناء، لا مجرد قواعد نحوية.',
+ classical:{poet:'عمرو بن كلثوم',poem:'معلقة عمرو بن كلثوم',a:'أَلا هُبّي بِصَحنِكِ فَاَصبَحينا',b:'وَلا تُبقي خُمورَ الأَندَرينا',meter:'الوافر',pattern:'مفاعلتن مفاعلتن فعولن',rhyme:'ن',source:'https://qafiyah.com/poems/YksA',meaning:'يفتتح بطلب مباشر إلى الساقية أن تسقيهم وألا تدخر خمر الأندر.',image:'الصحن والحركة والفعل المباشر تضع السامع داخل مجلس لا أمام وصف له.',rhetoric:'«ألا» للتنبيه، ثم أمران متتابعان؛ النبرة حاضرة وقوية من أول لفظة.',craft:'لا مقدمة ولا وصف للمزاج؛ الأمر نفسه هو الذي يصنع الجو والنبرة.'},
+ folk:{poet:'راشد الخلاوي',poem:'من شعره الهلالي',a:'حاضر الراي صايبه',b:'مصاب الحشا ما دهي بادها مصايبه',meter:'الهلالي',pattern:'فعولن مفاعيلن فعولن مفاعلن — من أشهر قوالبه',rhyme:'ب',source:'https://www.dhofari.com/vb/archive/index.php/t-22519.html',meaning:'يقابل بين صاحب الرأي الحاضر المصيب وبين من أصيب قلبه بما أثقله من المصائب.',image:'الحشا المصاب يجعل الهم جرحًا داخليًا محسوسًا لا فكرة ذهنية.',rhetoric:'مقابلة بين صفاء الرأي وإصابة الحشا، مع تكرار جذر «صاب» بتلوينات مختلفة.',craft:'قوة البيت في التوازي الصوتي والمعنوي؛ اللفظة نفسها تتغير دلالتها داخل السياق.'}
+},
+{
+ id:'d7',theme:'الحكمة تصبح شعرًا حين تمر عبر تجربة محسوسة',focus:'لا تكتب حكمة كشعار؛ أعطها نارًا أو طريقًا أو أثرًا.',
+ classical:{poet:'الحارث بن حلزة',poem:'معلقة الحارث بن حلزة',a:'آذَنَتنا بِبَينِها أَسماءُ',b:'رُبَّ ثاوٍ يُمَلُّ مِنهُ الثَواءُ',meter:'الخفيف',pattern:'فاعلاتن مستفعلن فاعلاتن',rhyme:'ء',source:'https://qafiyah.com/poems/xxWN',meaning:'أخبرته أسماء بفراقها، ثم يقرر حكمة: قد يُملّ حتى ممن يطول مقامه.',image:'الفراق خبر يصل فجأة، ثم يقابله معنى الإقامة الطويلة التي قد تورث الملل.',rhetoric:'مفارقة بين البين والثواء، وبين الرحيل والإقامة؛ والجملة الثانية تجري مجرى الحكمة.',craft:'وصل التجربة الخاصة بحكمة عامة؛ لذلك لا تبقى القصيدة شكوى فردية.'},
+ folk:{poet:'راشد الخلاوي',poem:'من شعره الهلالي',a:'ومشطون حالٍ بات يصلى على لظا',b:'مغلوف معلوقٍ والأكباد ذايبه',meter:'الهلالي',pattern:'فعولن مفاعيلن فعولن مفاعلن — مع صور نبطية مسموعة',rhyme:'ب',source:'https://www.dhofari.com/vb/archive/index.php/t-22519.html',meaning:'يصف صاحب حالٍ مشدودٍ بالهم كأنه يبيت على نار، والقلوب من شدة الوجد تذوب.',image:'الهم نار يُصلى عليها، والكبد تذوب؛ الألم النفسي صار حرارة ومادة.',rhetoric:'استعارة حسية ممتدة: لظى وذوبان لنقل شدة الوجد.',craft:'لو قال «أنا مهموم» لضاع معظم الأثر؛ اختار الحرارة والذوبان ليجعل الألم محسوسًا.'}
+}
 ];
-var meters={
+
+var meterLibrary={
  classical:[
-  ['الكامل','متفاعلن متفاعلن متفاعلن','بحر قوي مرن، مناسب للحماسة والوصف، وله زحافات وصور متعددة.'],
-  ['الوافر','مفاعلتن مفاعلتن فعولن','إيقاع واضح ولين، ويكثر في الوجد والحكمة.'],
-  ['الطويل','فعولن مفاعيلن فعولن مفاعلن','من أشهر بحور القصيدة العربية، واسع للنفس والسرد والمعاني الطويلة.'],
-  ['البسيط','مستفعلن فاعلن مستفعلن فاعلن','بحر واضح الحركة يجمع بين السعة والخفة.']
+  {n:'الطويل',p:'فعولن مفاعيلن فعولن مفاعلن',d:'واسع النفس، كثير في المعلقات والسرد والحكمة. للبحر صور وزحافات لا تختصرها هذه الصيغة التعليمية.'},
+  {n:'الكامل',p:'متفاعلن متفاعلن متفاعلن',d:'قوي الحركة، مناسب للفخر والوصف والانفعال.'},
+  {n:'الوافر',p:'مفاعلتن مفاعلتن فعولن',d:'لين الجرس مع قوة، يكثر في الوجد والفخر.'},
+  {n:'البسيط',p:'مستفعلن فاعلن مستفعلن فعلن',d:'متوازن ومرن في الوصف والحكمة.'},
+  {n:'الخفيف',p:'فاعلاتن مستفعلن فاعلاتن',d:'جرس خفيف واضح؛ منه معلقة الحارث بن حلزة.'},
+  {n:'الرجز',p:'مستفعلن مستفعلن مستفعلن',d:'إيقاع مباشر، كثير الاستعمال في الارتجال والتعليم.'},
+  {n:'الرمل',p:'فاعلاتن فاعلاتن فاعلاتن',d:'إيقاع هادئ غنائي في كثير من صوره.'},
+  {n:'المتقارب',p:'فعولن فعولن فعولن فعولن',d:'نبض متقارب قوي، مشهور في السرد والحماسة.'}
  ],
- nabati:[
-  ['المسحوب','إيقاع نبطي شائع ذو جرس متوازن','له صور أداء متعددة؛ لا يصح إجباره دائمًا على كتابة تفعيلات خليلية حرفية.'],
-  ['الهجيني','إيقاع غنائي/إنشادي خفيف','تتنوع صوره بحسب البيئة والأداء والسماع هو المرجع المهم.'],
-  ['الصخري','وزن نبطي ذو أداء مميز','يستفاد من السماع ومضاهاة الشطر بالنموذج أكثر من الاعتماد على الرسم الإملائي وحده.'],
-  ['الهلالي','من الأوزان السردية الممتدة في النبطي','توجد له روايات وصور أداء؛ درّب أذنك على نموذج موثوق ثم حاكه.']
+ folk:[
+  {n:'المسحوب',p:'مستفعلن مستفعلن فاعلاتن',d:'من أشهر أوزان النبطي. الكتابة الشعبية تُقرأ كما تُنطق، لذلك لا يكفي الرسم الإملائي للفحص.'},
+  {n:'الهلالي',p:'فعولن مفاعيلن فعولن مفاعلن',d:'من أقدم الأوزان الشعبية وقريب من الطويل الفصيح، وتوجد له صور أداء ورواية.'},
+  {n:'الهجيني الطويل',p:'قريب من البسيط في بعض التصنيفات',d:'تختلف تسمياته وصوره بين المدارس الشعبية.'},
+  {n:'الهجيني القصير',p:'وزن شعبي مستقل في بعض التصنيفات',d:'الأداء والسماع عنصران أساسيان لضبطه.'},
+  {n:'الصخري',p:'يربطه بعض الباحثين بالوافر',d:'توجد خلافات في رده إلى البحور الخليلية؛ المرجع السمعي مهم.'},
+  {n:'الحداء / الرجز',p:'مبني على نبض الرجز في كثير من صوره',d:'قصير الحركة ومرتبط بالإنشاد والعمل والسير.'},
+  {n:'المديد الشعبي',p:'من فروع المديد المستعملة شعبيًا',d:'تدخل فيه نصوص غنائية، ومنها نماذج لعبونية.'},
+  {n:'الفنون اللعبونية',p:'أسرة أوزان وألحان لا قالب واحد',d:'ارتبطت بمحمد بن لعبون، فلا يصح اختزالها كلها في تفعيلة واحدة.'}
  ]
 };
-var prose=['مرت الأيام وتغير الناس، لكن الإنسان يظل يبحث عن الوجوه التي عرفها في بداياته.','قد يكون الصمت أبلغ من الاعتذار إذا جاءت الكلمات متأخرة.','لا تعرف قيمة البيت إلا حين تطول بك الطرق بعيدًا عنه.','ليس كل من ابتعد نسي؛ بعض الغياب يحفظ الود أكثر مما تفعله المجالس.','النجاح لا يأتي دفعة واحدة، بل من محاولات صغيرة لا يراها أحد.'];
-var ii=0,pi=0,deferred=null;
-function pick(a){return a[Math.floor(Math.random()*a.length)]}
+
+var st={
+ current:DB.get('current',0),
+ completed:DB.get('completed',{}),
+ reviews:DB.get('reviews',{}),
+ drafts:DB.get('drafts',[]),
+ errors:DB.get('errors',[]),
+ meterTab:'classical',
+ checks:{c:false,f:false},
+ revision:{c:false,f:false},
+ recall:{c:0,f:0}
+};
+var viewIndex=st.current,deferred=null;
+
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-function save(){db.set('mode',st.mode);db.set('day',st.day);db.set('streak',st.streak);db.set('lex',st.lex);db.set('poems',st.poems);db.set('attempts',st.attempts)}
-function stats(){$('#day').textContent=st.day;$('#streak').textContent=st.streak;$('#wordN').textContent=st.lex.length;$('#poemN').textContent=st.poems.length}
-function modeUI(){$$('#modes button').forEach(function(b){b.classList.toggle('on',b.dataset.mode===st.mode)})}
-function dailyUI(){var m=labels[st.mode];var items=[['الأذن',pick(daily.read)],['الصورة',pick(daily.image)],['البلاغة',pick(daily.rhetoric)],['الصياغة',pick(daily.craft)]];$('#daily').innerHTML=items.map(function(x){return '<article class="daily"><b>'+x[0]+' · '+m+'</b><p>'+x[1]+'</p>'+(x[0]==='الأذن'?'<button class="tiny" data-read-five type="button">هات خمسة أبيات للقراءة والاستماع ←</button>':'')+'</article>'}).join('')}
+function save(){DB.set('current',st.current);DB.set('completed',st.completed);DB.set('reviews',st.reviews);DB.set('drafts',st.drafts);DB.set('errors',st.errors)}
+function arNum(n){return String(n).replace(/\d/g,function(d){return '٠١٢٣٤٥٦٧٨٩'[d]})}
+function normalize(s){return String(s||'').toLowerCase().replace(/[\u064b-\u065f\u0670]/g,'').replace(/[إأآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/ة/g,'ه').replace(/[^ء-ي\s]/g,' ').replace(/\s+/g,' ').trim()}
+function tokens(s){var n=normalize(s);return n?n.split(' '):[]}
+function lcsScore(ref,input){var a=tokens(ref),b=tokens(input);if(!a.length||!b.length)return 0;var dp=Array(b.length+1).fill(0);for(var i=1;i<=a.length;i++){var prev=0;for(var j=1;j<=b.length;j++){var old=dp[j];dp[j]=a[i-1]===b[j-1]?prev+1:Math.max(dp[j],dp[j-1]);prev=old}}return Math.round(100*dp[b.length]/Math.max(a.length,b.length))}
+function fullVerse(v){return v.a+' '+v.b}
+function splitCandidate(s){var t=String(s||'').trim();var p=t.split(/\n+|\s[\/|=—–]\s/).map(function(x){return x.trim()}).filter(Boolean);return p.length>=2?[p[0],p.slice(1).join(' ')]:null}
+function pulse(s){var n=normalize(s).replace(/\s/g,'');if(!n)return 0;var longs=(n.match(/[اوي]/g)||[]).length;var letters=n.length;return letters+Math.round(longs*.45)}
+function rhythmResult(candidate,ref){
+ var parts=splitCandidate(candidate);if(!parts)return {ok:false,needsSplit:true,html:'افصل الشطرين بسطر جديد أو بعلامة <b>/</b>. لا أستطيع حتى الفحص التقريبي إذا كان الشطران ملتصقين.'};
+ var target=[pulse(ref.a),pulse(ref.b)],got=[pulse(parts[0]),pulse(parts[1])],issues=[];
+ for(var i=0;i<2;i++){var r=target[i]?got[i]/target[i]:1;if(r>1.16)issues.push('الشطر '+(i===0?'الأول':'الثاني')+' يبدو أطول من النموذج؛ راجع خصوصًا الكلمات الزائدة قرب منتصفه ونهايته.');else if(r<.84)issues.push('الشطر '+(i===0?'الأول':'الثاني')+' يبدو أقصر من النموذج؛ راجع موضعًا ناقص النبض قبل النهاية.')}
+ if(issues.length)return {ok:false,html:'<b>يوجد خلل إيقاعي محتمل:</b><br>'+issues.join('<br>')+'<br><br><span class="muted">لا أعطيك الصياغة الصحيحة. غيّر عبارتك أنت مع الحفاظ على المعنى والصورة ثم أعد الفحص.</span>',issues:issues};
+ return {ok:true,html:'<b>لا يظهر فرق كبير في طول النبض المكتوب مقارنة بالنموذج.</b><br>هذا لا يثبت سلامة الوزن نهائيًا؛ اقرأ بيتك بصوت مرتفع على نغمة البيت الأصلي. إذا تعثرت أذنك فعدّل العبارة قبل النظر إلى التفعيلات.'}
+}
+function daysSince(ts){return Math.floor((Date.now()-ts)/86400000)}
+function nextIncomplete(from){for(var k=1;k<=lessons.length;k++){var i=(from+k)%lessons.length;if(!st.completed[lessons[i].id])return i}return (from+1)%lessons.length}
 
-function readingStatus(t){$('#readingStatus').textContent=t||''}
-function stopReading(){
-  readingPlaybackToken++;
-  if('speechSynthesis' in window)window.speechSynthesis.cancel();
-  Array.from(document.querySelectorAll('.reading-verse')).forEach(function(e){e.classList.remove('active')});
+function renderLesson(){
+ var L=lessons[viewIndex],c=L.classical,f=L.folk;
+ $('#lessonLabel').textContent='الدرس '+arNum(viewIndex+1)+' من '+arNum(lessons.length);
+ $('#lessonProgress').textContent=arNum(Object.keys(st.completed).length)+' / '+arNum(lessons.length)+' مكتملة';
+ $('#themeCard').innerHTML='<div><strong>محور اليوم: '+esc(L.theme)+'</strong><div class="muted">'+esc(L.focus)+'</div></div><span>'+(st.completed[L.id]?'✓ مكتمل':'قيد التدريب')+'</span>';
+ $('#cPoet').textContent=c.poet;$('#cPoem').textContent=c.poem;$('#cMeter').textContent=c.meter;$('#cVerse').innerHTML='<span class="half">'+esc(c.a)+'</span><span class="half">'+esc(c.b)+'</span>';$('#cSource').href=c.source;$('#cMeaning').textContent=c.meaning;$('#cImage').textContent=c.image;$('#cRhetoric').textContent=c.rhetoric;$('#cCraft').textContent=c.craft;$('#cMeterHint').textContent=c.meter+' — احفظ النغمة أولًا ولا تبدأ بتقسيم كلماتك إلى تفعيلات.';
+ $('#fPoet').textContent=f.poet;$('#fPoem').textContent=f.poem;$('#fMeter').textContent=f.meter;$('#fVerse').innerHTML='<span class="half">'+esc(f.a)+'</span><span class="half">'+esc(f.b)+'</span>';$('#fSource').href=f.source;$('#fMeaning').textContent=f.meaning;$('#fImage').textContent=f.image;$('#fRhetoric').textContent=f.rhetoric;$('#fCraft').textContent=f.craft;$('#fMeterHint').textContent=f.meter+' — في الشعبي اكتب كما تنطق وقارن بالنموذج المسموع في أذنك.';
+ $('#cTarget').textContent=c.meter;$('#fTarget').textContent=f.meter;
+ $('#recallC').value='';$('#recallF').value='';$('#recallCResult').textContent='';$('#recallFResult').textContent='';
+ $('#tryC').value='';$('#tryF').value='';['#feedbackC','#feedbackF','#patternC','#patternF','#correctedC','#correctedF','#showPatternC','#showPatternF'].forEach(function(s){$(s).classList.add('hide')});
+ $('#cVerse').classList.remove('hiddenVerse');$('#fVerse').classList.remove('hiddenVerse');$('#toggleVerses').textContent='إخفاء البيتين';
+ st.checks={c:false,f:false};st.revision={c:false,f:false};st.recall={c:0,f:0};
+ renderDots();
 }
-function readingPool(){
-  var mode=$('#readMode').value,poet=$('#readPoet').value;
-  return anthology.filter(function(x){return (mode==='mixed'||x.mode===mode)&&(!poet||x.poet===poet)});
+function renderDots(){$('#lessonDots').innerHTML=lessons.map(function(L,i){return '<button aria-label="الدرس '+(i+1)+'" data-dot="'+i+'" class="'+(i===viewIndex?'on':'')+'"></button>'}).join('');$$('[data-dot]').forEach(function(b){b.onclick=function(){viewIndex=+b.dataset.dot;renderLesson()}})}
+
+function checkRecall(){
+ var L=lessons[viewIndex],sc=lcsScore(fullVerse(L.classical),$('#recallC').value),sf=lcsScore(fullVerse(L.folk),$('#recallF').value);st.recall={c:sc,f:sf};
+ function show(el,s){el.textContent=s>=90?'ممتاز — استرجاع شبه كامل.':s>=70?'جيد — بقيت فروق قليلة؛ أعد البيت بصوتك مرة أخرى.':'الحفظ غير كافٍ بعد. راجع البيت ثم أخفه وحاول مجددًا.';el.className='micro '+(s>=70?'ok':'bad')}
+ show($('#recallCResult'),sc);show($('#recallFResult'),sf)
 }
-function readingPoets(){
-  var sel=$('#readPoet'),old=sel.value,mode=$('#readMode').value;
-  var names=Array.from(new Set(anthology.filter(function(x){return mode==='mixed'||x.mode===mode}).map(function(x){return x.poet})));
-  sel.innerHTML='<option value="">اختيار عشوائي من المكتبة</option>'+names.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join('');
-  if(names.includes(old))sel.value=old;
+function recordErrors(kind,res){
+ if(res.ok||res.needsSplit)return;
+ var key=kind==='c'?'فصيح':'شعبي';
+ res.issues.forEach(function(x){st.errors.push({date:Date.now(),lesson:lessons[viewIndex].id,kind:key,issue:x.indexOf('أطول')>-1?'زيادة إيقاعية':'نقص إيقاعي'})});if(st.errors.length>80)st.errors=st.errors.slice(-80);save();renderMirror()
 }
-function chooseReading(){
-  stopReading();
-  var pool=readingPool();
-  if(!pool.length){readingStatus('لا توجد أبيات مطابقة لهذا الاختيار.');return}
-  var other=pool.filter(function(x){return x.id!==lastReadingId});
-  currentReading=pick(other.length?other:pool);
-  lastReadingId=currentReading.id;
-  var x=currentReading;
-  $('#readingMeta').innerHTML='<h4>'+esc(x.poet)+' <small>· '+esc(labels[x.mode])+'</small></h4><div>'+esc(x.title)+'</div><small>خمسة أبيات كاملة من النص نفسه · <a href="'+esc(x.source)+'" target="_blank" rel="noopener noreferrer">مصدر الأبيات</a></small>';
-  $('#readingVerses').innerHTML=x.verses.map(function(v,i){return '<li class="reading-verse" data-verse="'+i+'"><span class="reading-num">'+(i+1)+'</span><div class="reading-halves"><span class="reading-half">'+esc(v[0])+'</span><span class="reading-half">'+esc(v[1])+'</span></div></li>'}).join('');
-  $('#readingFooter').classList.remove('hide');
-  $('#readingReflection').value='';
-  readingStatus('اختر «استمع للأبيات»، أو اقرأ الأبيات بنفسك ثم سجل ملاحظتك.');
+function checkAttempt(kind,revised){
+ var L=lessons[viewIndex],ref=kind==='c'?L.classical:L.folk,txt=$(kind==='c'?'#tryC':'#tryF').value.trim(),fb=$(kind==='c'?'#feedbackC':'#feedbackF');
+ if(!txt)return alert('اكتب بيتك أولًا.');
+ var res=rhythmResult(txt,ref);fb.innerHTML=res.html;fb.className='feedback '+(res.ok?'ok':'warn');fb.classList.remove('hide');st.checks[kind]=true;
+ if(!res.ok&&!res.needsSplit&&!revised){st.revision[kind]=false;$(kind==='c'?'#correctedC':'#correctedF').classList.remove('hide');recordErrors(kind,res)}
+ if(revised){st.revision[kind]=true;$(kind==='c'?'#showPatternC':'#showPatternF').classList.remove('hide');if(!res.ok&&!res.needsSplit)recordErrors(kind,res)}
+ if(res.ok){st.revision[kind]=true;$(kind==='c'?'#showPatternC':'#showPatternF').classList.remove('hide')}
 }
-function openReading(){
-  $('#reading').classList.remove('hide');
-  $('#readMode').value=st.mode;
-  readingPoets();
-  $('#readPoet').value='';
-  chooseReading();
-  $('#reading').scrollIntoView({behavior:'smooth',block:'start'});
+function showPattern(kind){
+ var L=lessons[viewIndex],r=kind==='c'?L.classical:L.folk,box=$(kind==='c'?'#patternC':'#patternF');
+ box.innerHTML='<b>'+esc(r.meter)+'</b><br>'+esc(r.pattern)+'<br><span class="muted">قارن الآن فقط بعد محاولتك وتصحيحك. لا تعُد إلى تركيب الكلمات ميكانيكيًا على التفعيلة.</span>';box.classList.remove('hide')
 }
-function playReading(){
-  if(!currentReading){readingStatus('اختر خمسة أبيات أولًا.');return}
-  if(!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window)){readingStatus('القراءة الصوتية غير متاحة في هذا المتصفح. يمكنك قراءة الأبيات المكتوبة.');return}
-  stopReading();
-  var token=readingPlaybackToken,voices=window.speechSynthesis.getVoices();
-  var voice=voices.find(function(v){return /^ar(-SA)?$/i.test(v.lang)})||voices.find(function(v){return /^ar[-_]/i.test(v.lang)})||null;
-  var i=0;
-  function next(){
-    if(token!==readingPlaybackToken)return;
-    if(i>=currentReading.verses.length){Array.from(document.querySelectorAll('.reading-verse')).forEach(function(el){el.classList.remove('active')});readingStatus('انتهت قراءة الأبيات الخمسة.');return}
-    var verse=currentReading.verses[i],idx=i++;
-    Array.from(document.querySelectorAll('.reading-verse')).forEach(function(el){el.classList.toggle('active',Number(el.dataset.verse)===idx)});
-    readingStatus('قراءة البيت '+i+' من 5'+(!voice?' · لا يظهر صوت عربي مثبت؛ قد تختلف جودة النطق.':''));
-    var utter=new SpeechSynthesisUtterance(verse[0]+'، '+verse[1]);
-    utter.lang=voice?voice.lang:'ar-SA';
-    if(voice)utter.voice=voice;
-    utter.rate=Number($('#readingRate').value)||0.85;
-    utter.pitch=1;
-    utter.onend=next;
-    utter.onerror=function(e){if(token!==readingPlaybackToken)return;stopReading();readingStatus('تعذر تشغيل الصوت ('+(e.error||'خطأ')+'). تأكد من تفعيل المحرك الصوتي العربي في إعدادات الهاتف.')};
-    window.speechSynthesis.speak(utter);
-  }
-  next();
-}
-function bindReading(){
-  $('#daily').addEventListener('click',function(e){if(e.target.closest('[data-read-five]'))openReading()});
-  $('#closeReading').onclick=function(){stopReading();$('#reading').classList.add('hide')};
-  $('#readMode').onchange=function(){stopReading();readingPoets();$('#readPoet').value='';chooseReading()};
-  $('#readPoet').onchange=chooseReading;
-  $('#selectReading').onclick=chooseReading;
-  $('#readAloud').onclick=playReading;
-  $('#stopReading').onclick=function(){stopReading();readingStatus('توقف الإلقاء. يمكنك إعادة تشغيله.')};
-  $('#readingRate').oninput=function(){$('#readingRateValue').textContent=Number(this.value).toFixed(2)+'×'};
-  $('#saveReadingNote').onclick=function(){
-    var note=$('#readingReflection').value.trim();
-    if(!currentReading)return alert('اختر الأبيات أولًا.');
-    if(!note)return alert('اكتب ملاحظتك أولًا.');
-    st.attempts.push({type:'reading',mode:currentReading.mode,poet:currentReading.poet,title:currentReading.title,text:note,date:Date.now()});
-    save();
-    readingStatus('حُفظت ملاحظتك لهذا التدريب على هذا الجهاز.');
-  };
+function finishLesson(){
+ var L=lessons[viewIndex],problems=[];
+ if(st.recall.c<70||st.recall.f<70)problems.push('تحقق من حفظ البيتين بدرجة ٧٠٪ على الأقل');
+ if(!$('#tryC').value.trim()||!$('#tryF').value.trim())problems.push('اكتب بيت محاكاة فصيحًا وبيتًا شعبيًا');
+ if(!st.checks.c||!st.checks.f)problems.push('افحص محاولتي الوزن');
+ if(!st.revision.c||!st.revision.f)problems.push('إذا ظهر خلل فصحح البيت وأعد الفحص');
+ if(problems.length)return alert('قبل إنهاء الدرس:\n• '+problems.join('\n• '));
+ if(!st.completed[L.id]){st.completed[L.id]=Date.now();st.reviews[L.id]={level:0,last:Date.now()};}
+ st.current=nextIncomplete(viewIndex);save();alert('أُنجز الدرس. سيعود إليك في المراجعة المتباعدة.');viewIndex=st.current;renderLesson();renderReview();renderMirror()
 }
 
-function imageUI(){var o=imagePrompts[ii%imagePrompts.length];$('#imagePrompt').textContent=o.p;$('#imageHint').classList.add('hide');$('#imageHint').textContent='';$('#imageText').value='';$('#imageTools').innerHTML=['حاسة بصرية','صوت','حركة','مكان','زمن','مفارقة'].map(function(x){return '<span class="chip">'+x+'</span>'}).join('')}
-function rhetoricUI(){$('#lessons').innerHTML=lessons.map(function(r,i){return '<article class="lesson"><button data-i="'+i+'"><span>'+r[0]+'</span><span>＋</span></button><div class="body"><p>'+r[1]+'</p><p><b>مثال:</b> '+r[2]+'</p><p><b>تمرين:</b> '+r[3]+'</p></div></article>'}).join('');$$('.lesson>button').forEach(function(b){b.onclick=function(){b.parentElement.classList.toggle('open')}})}
-function proseUI(){$('#prosePrompt').textContent=prose[pi%prose.length];['#s1','#s2','#s3','#s4'].forEach(function(x){$(x).value=''})}
-function meterUI(){$$('#meterKinds button').forEach(function(b){b.classList.toggle('on',b.dataset.kind===st.meterKind)});var a=meters[st.meterKind];if(!st.meter||!a.some(function(x){return x[0]===st.meter}))st.meter=a[0][0];$('#chosenMeter').value=st.meter;$('#meters').innerHTML=a.map(function(m){return '<article class="metercard '+(m[0]===st.meter?'on':'')+'" data-meter="'+m[0]+'"><h3>'+m[0]+'</h3><div class="pattern">'+m[1]+'</div><p>'+m[2]+'</p></article>'}).join('');$$('.metercard').forEach(function(c){c.onclick=function(){st.meter=c.dataset.meter;meterUI()}})}
-function lexUI(){stats();if(!st.lex.length){$('#lexList').innerHTML='<div class="feedback">دفترك فارغ. أضف كلمة أو صورة أو تركيبًا أعجبك أثناء القراءة.</div>';return}$('#lexList').innerHTML=st.lex.slice().reverse().map(function(x,ri){var i=st.lex.length-1-ri;return '<article class="lexcard"><small>'+esc(x.type)+' · '+labels[x.mode]+'</small><h3>'+esc(x.text)+'</h3><p>'+esc(x.note)+'</p><div class="cardactions"><button data-copy="'+i+'">نسخ</button><button class="danger" data-del="'+i+'">حذف</button></div></article>'}).join('');$$('[data-copy]').forEach(function(b){b.onclick=function(){if(navigator.clipboard)navigator.clipboard.writeText(st.lex[+b.dataset.copy].text)}});$$('[data-del]').forEach(function(b){b.onclick=function(){st.lex.splice(+b.dataset.del,1);save();lexUI()}})}
-function poemUI(){stats();if(!st.poems.length){$('#poemList').innerHTML='<div class="feedback">لا توجد نصوص محفوظة بعد.</div>';return}$('#poemList').innerHTML=st.poems.slice().reverse().map(function(x,ri){var i=st.poems.length-1-ri;return '<article class="poemcard"><small>'+labels[x.mode]+' · '+esc(x.meter||'بلا بحر محدد')+(x.rhyme?' · روي '+esc(x.rhyme):'')+'</small><h3>'+esc(x.title||'مسودة بلا عنوان')+'</h3><pre>'+esc(x.text)+'</pre><div class="cardactions"><button data-pcopy="'+i+'">نسخ</button><button class="danger" data-pdel="'+i+'">حذف</button></div></article>'}).join('');$$('[data-pcopy]').forEach(function(b){b.onclick=function(){if(navigator.clipboard)navigator.clipboard.writeText(st.poems[+b.dataset.pcopy].text)}});$$('[data-pdel]').forEach(function(b){b.onclick=function(){st.poems.splice(+b.dataset.pdel,1);save();poemUI()}})}
-function savePoem(o){if(!o.text.trim()){alert('اكتب نصًا أولًا.');return}st.poems.push({title:o.title||'مسودة',mode:o.mode||'mixed',meter:o.meter||'',rhyme:o.rhyme||'',text:o.text,date:new Date().toISOString()});save();poemUI();alert('حُفظ النص في قصائدي.')}
-function navigate(id){if(id!=='home')stopReading();Array.from(document.querySelectorAll('.page')).forEach(function(p){p.classList.toggle('on',p.id===id)});$$('.nav button').forEach(function(b){b.classList.toggle('on',b.dataset.page===id)});scrollTo({top:0,behavior:'smooth'})}
+function reviewDue(){
+ var out=[];Object.keys(st.completed).forEach(function(id){var L=lessons.find(function(x){return x.id===id}),r=st.reviews[id]||{level:0,last:st.completed[id]};if(!L)return;var level=Math.min(r.level,reviewIntervals.length-1),need=reviewIntervals[level],elapsed=daysSince(r.last);if(elapsed>=need)out.push({L:L,need:need,elapsed:elapsed})});return out
+}
+function renderReview(){
+ var due=reviewDue(),done=Object.keys(st.completed).length;
+ $('#reviewSummary').innerHTML='<div><b>'+arNum(done)+'</b><span>دروس مكتملة</span></div><div><b>'+arNum(due.length)+'</b><span>مراجعات مستحقة</span></div><div><b>'+arNum(st.errors.length)+'</b><span>ملاحظات إيقاعية</span></div>';
+ if(!due.length){$('#reviewDue').innerHTML='<div class="feedback">لا توجد مراجعة مستحقة الآن. يمكنك إجراء اختبار عشوائي من الأسفل.</div>';return}
+ $('#reviewDue').innerHTML=due.map(function(x){return '<article class="reviewCard" data-review="'+x.L.id+'"><span class="eyebrow">مستحقة بعد '+arNum(x.need)+' يوم</span><h3>'+esc(x.L.theme)+'</h3><p>'+esc(x.L.classical.poet)+' + '+esc(x.L.folk.poet)+'</p><button class="primary" data-start-review="'+x.L.id+'">ابدأ اختبار الحفظ</button><div class="reviewTest hide"></div></article>'}).join('');
+ $$('[data-start-review]').forEach(function(b){b.onclick=function(){startReview(b.dataset.startReview,b.closest('.reviewCard').querySelector('.reviewTest'))}})
+}
+function startReview(id,box){
+ var L=lessons.find(function(x){return x.id===id});if(!L)return;
+ box.innerHTML='<p>اكتب البيتين من الذاكرة دون فتح درس اليوم.</p><label>الفصيح<textarea data-r-c></textarea></label><label>الشعبي<textarea data-r-f></textarea></label><button class="secondary" data-check-review>تحقق</button><div class="feedback hide" data-r-fb></div>';box.classList.remove('hide');
+ box.querySelector('[data-check-review]').onclick=function(){var a=lcsScore(fullVerse(L.classical),box.querySelector('[data-r-c]').value),f=lcsScore(fullVerse(L.folk),box.querySelector('[data-r-f]').value),fb=box.querySelector('[data-r-fb]');fb.classList.remove('hide');fb.innerHTML='الفصيح: '+arNum(a)+'٪ · الشعبي: '+arNum(f)+'٪';if(a>=70&&f>=70){var r=st.reviews[id]||{level:0,last:Date.now()};r.level=Math.min(reviewIntervals.length,r.level+1);r.last=Date.now();st.reviews[id]=r;save();fb.innerHTML+='<br><b>تمت المراجعة بنجاح.</b>';setTimeout(renderReview,700)}else fb.innerHTML+='<br>أعد القراءة ثم جرّب مرة أخرى.'}
+}
+function randomReview(){
+ var ids=Object.keys(st.completed),L=ids.length?lessons.find(function(x){return x.id===ids[Math.floor(Math.random()*ids.length)]}):lessons[viewIndex],box=$('#randomReviewBox');
+ box.innerHTML='<div class="prompt"><b>'+esc(L.classical.poet)+':</b> '+esc(L.classical.a)+' … أكمل العجز من الذاكرة.</div><textarea id="randomAnswer"></textarea><button id="randomCheck" class="primary">تحقق</button><div id="randomFb" class="micro"></div>';box.classList.remove('hide');$('#randomCheck').onclick=function(){var s=lcsScore(L.classical.b,$('#randomAnswer').value);$('#randomFb').textContent='مطابقة تقريبية: '+arNum(s)+'٪ — الهدف الاسترجاع لا النسخ الحرفي فقط.'}
+}
+
+function allMeters(kind){return meterLibrary[kind]}
+function fillFreeMeters(){var k=$('#freeKind').value;$('#freeMeter').innerHTML=allMeters(k).map(function(m){return '<option>'+esc(m.n)+'</option>'}).join('')}
+function findReference(kind,meter){for(var i=0;i<lessons.length;i++){var r=kind==='classical'?lessons[i].classical:lessons[i].folk;if(r.meter.indexOf(meter)>-1||meter.indexOf(r.meter)>-1)return r}return null}
+function freeCheck(){
+ var idea=$('#freeIdea').value.trim(),img=$('#freeImage').value.trim(),txt=$('#freeVerse').value.trim(),kind=$('#freeKind').value,m=$('#freeMeter').value,fb=$('#freeFeedback'),notes=[];
+ if(!idea)notes.push('لم تحدد الفكرة بعد؛ هذا يعيدك إلى تركيب الكلمات.');
+ if(!img)notes.push('لم تصنع صورة قبل الوزن؛ حاول جعل المعنى يُرى أو يُسمع.');
+ if(!txt)notes.push('لم تكتب البيت بعد.');
+ if(txt){var ref=findReference(kind,m);if(ref){var r=rhythmResult(txt,ref);notes.push((r.ok?'الإيقاع الأولي: لا يظهر فرق كبير عن نموذج محفوظ.':'الإيقاع الأولي: '+r.html.replace(/<[^>]+>/g,' ')))}else notes.push('لا يوجد في دروسك الحالية نموذج محفوظ على هذا الوزن؛ استخدم مكتبة الأوزان والسماع ولا تعتمد على الفحص الشكلي.')}
+ notes.push('اسأل نفسك: هل القافية أجبرتني على كلمة ضعيفة؟ وهل الصورة تضيف معنى أم مجرد زينة؟');
+ fb.innerHTML=notes.map(function(x){return '• '+x}).join('<br>');fb.classList.remove('hide')
+}
+function saveDraft(){
+ var t=$('#freeVerse').value.trim();if(!t)return alert('اكتب البيت أولًا.');
+ st.drafts.push({date:Date.now(),idea:$('#freeIdea').value.trim(),image:$('#freeImage').value.trim(),kind:$('#freeKind').value,meter:$('#freeMeter').value,text:t});save();renderDrafts();alert('حُفظت المسودة على هذا الجهاز.')
+}
+function renderDrafts(){
+ if(!st.drafts.length){$('#drafts').innerHTML='<div class="feedback">لا توجد مسودات بعد.</div>';return}
+ $('#drafts').innerHTML=st.drafts.slice().reverse().map(function(x,ri){var i=st.drafts.length-1-ri;return '<article class="draftCard"><small>'+esc(x.kind==='classical'?'فصيح':'شعبي')+' · '+esc(x.meter)+'</small><p>'+esc(x.text)+'</p><div class="cardActions"><button data-copy-d="'+i+'">نسخ</button><button class="danger" data-del-d="'+i+'">حذف</button></div></article>'}).join('');
+ $$('[data-copy-d]').forEach(function(b){b.onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(st.drafts[+b.dataset.copyD].text)}});$$('[data-del-d]').forEach(function(b){b.onclick=function(){st.drafts.splice(+b.dataset.delD,1);save();renderDrafts()}})
+}
+function renderMirror(){
+ var counts={};st.errors.forEach(function(e){var k=e.kind+' · '+e.issue;counts[k]=(counts[k]||0)+1});var keys=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]});
+ $('#errorMirror').innerHTML=keys.length?keys.slice(0,6).map(function(k){return '<div class="mirrorCard"><b>'+esc(k)+'</b><span>تكرر '+arNum(counts[k])+' مرة</span></div>'}).join(''):'<div class="feedback">لم تتكوّن لديك أنماط أخطاء بعد. ستظهر هنا بعد فحص محاولاتك.</div>'
+}
+function renderMeters(){
+ var a=meterLibrary[st.meterTab];$$('[data-meter-tab]').forEach(function(b){b.classList.toggle('on',b.dataset.meterTab===st.meterTab)});
+ $('#meterLibrary').innerHTML=a.map(function(m){return '<article class="meterCard"><h3>'+esc(m.n)+'</h3><div class="meterPattern">'+esc(m.p)+'</div><p>'+esc(m.d)+'</p></article>'}).join('')
+}
+function navigate(id){$$('.page').forEach(function(p){p.classList.toggle('on',p.id===id)});$$('.nav button').forEach(function(b){b.classList.toggle('on',b.dataset.page===id)});if(id==='review')renderReview();if(id==='write'){renderDrafts();renderMirror();fillFreeMeters()}if(id==='meters')renderMeters();scrollTo({top:0,behavior:'smooth'})}
 function bind(){
  $$('.nav button').forEach(function(b){b.onclick=function(){navigate(b.dataset.page)}});
- $$('#modes button').forEach(function(b){b.onclick=function(){st.mode=b.dataset.mode;save();modeUI();dailyUI();if(!$('#reading').classList.contains('hide')){$('#readMode').value=st.mode;readingPoets();$('#readPoet').value='';chooseReading()}}});
- $('#refresh').onclick=dailyUI;
- bindReading();
- $('#nextImage').onclick=function(){ii++;imageUI()};
- $('#showImageHint').onclick=function(){var o=imagePrompts[ii%imagePrompts.length];$('#imageHint').innerHTML='<b>اتجاه لا إجابة جاهزة:</b> '+o.h;$('#imageHint').classList.remove('hide')};
- $('#saveImage').onclick=function(){var v=$('#imageText').value.trim();if(!v)return alert('اكتب محاولتك أولًا.');st.attempts.push({type:'image',text:v,date:Date.now()});save();alert('حُفظت المحاولة.')};
- $('#nextProse').onclick=function(){pi++;proseUI()};
- $('#saveProse').onclick=function(){savePoem({title:'تمرين من النثر إلى الشعر',mode:st.mode,text:$('#s4').value||$('#s3').value||$('#s2').value||$('#s1').value})};
- $$('#meterKinds button').forEach(function(b){b.onclick=function(){st.meterKind=b.dataset.kind;st.meter='';meterUI()}});
- $('#meterHelp').onclick=function(){var t=$('#meterText').value.trim(),r=$('#rhyme').value.trim();if(!t)return alert('اكتب البيت أولًا.');var lines=t.split(/\n+/).filter(Boolean),same=!r||lines.every(function(l){return l.trim().endsWith(r)});var msg='البحر المختار: <b>'+esc(st.meter)+'</b>.<br>عدد الأسطر/الأشطر المدخلة: '+lines.length+'.<br>'+(r?(same?'الروي «'+esc(r)+'» ظاهر في النهايات المدخلة.':'بعض النهايات لا تنتهي بالروي «'+esc(r)+'». راجع القافية.'):'لم تحدد حرف الروي بعد.')+'<br><br><b>مهم:</b> هذا فحص شكلي. الحكم العروضي يحتاج قراءة صوتية وضبط الحركات والزحافات والعلل.';$('#meterFeedback').innerHTML=msg;$('#meterFeedback').classList.remove('hide')};
- $('#meterSave').onclick=function(){savePoem({title:'بيت للتدريب',mode:st.meterKind,meter:st.meter,rhyme:$('#rhyme').value.trim(),text:$('#meterText').value.trim()})};
- $('#addLex').onclick=function(){var t=$('#lexText').value.trim();if(!t)return alert('اكتب الكلمة أو التعبير.');st.lex.push({text:t,type:$('#lexType').value,mode:$('#lexMode').value,note:$('#lexNote').value.trim()});save();$('#lexText').value='';$('#lexNote').value='';lexUI()};
- $('#quizLex').onclick=function(){if(!st.lex.length)return alert('أضف بطاقات أولًا.');var x=pick(st.lex);alert(x.text+'\n\n'+(x.note||'حاول استخدامها الآن في جملة أو صورة شعرية.'))};
- $('#savePoem').onclick=function(){savePoem({title:$('#poemTitle').value.trim(),mode:$('#poemMode').value,meter:$('#poemMeter').value.trim(),rhyme:$('#poemRhyme').value.trim(),text:$('#poemText').value.trim()})};
+ $('#prevLesson').onclick=function(){viewIndex=(viewIndex-1+lessons.length)%lessons.length;renderLesson()};$('#nextLesson').onclick=function(){viewIndex=(viewIndex+1)%lessons.length;renderLesson()};
+ $('#toggleVerses').onclick=function(){var hide=!$('#cVerse').classList.contains('hiddenVerse');$('#cVerse').classList.toggle('hiddenVerse',hide);$('#fVerse').classList.toggle('hiddenVerse',hide);this.textContent=hide?'إظهار البيتين':'إخفاء البيتين'};
+ $('#checkRecall').onclick=checkRecall;
+ $('#checkC').onclick=function(){checkAttempt('c',false)};$('#checkF').onclick=function(){checkAttempt('f',false)};
+ $('#correctedC').onclick=function(){checkAttempt('c',true)};$('#correctedF').onclick=function(){checkAttempt('f',true)};
+ $('#showPatternC').onclick=function(){showPattern('c')};$('#showPatternF').onclick=function(){showPattern('f')};
+ $('#finishLesson').onclick=finishLesson;
+ $('#randomReview').onclick=randomReview;
+ $('#freeKind').onchange=fillFreeMeters;$('#freeCheck').onclick=freeCheck;$('#saveDraft').onclick=saveDraft;
+ $$('[data-meter-tab]').forEach(function(b){b.onclick=function(){st.meterTab=b.dataset.meterTab;renderMeters()}})
 }
-function dayCheck(){var today=new Date().toISOString().slice(0,10),last=db.get('lastDay','');if(last&&last!==today){var d=Math.round((new Date(today)-new Date(last))/86400000);st.streak=d===1?st.streak+1:1;st.day=Math.min(90,st.day+1);save()}db.set('lastDay',today)}
-function pwa(){if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js');window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;$('#install').classList.remove('hide')});$('#install').onclick=async function(){if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('#install').classList.add('hide')}}
-dayCheck();stats();modeUI();dailyUI();imageUI();rhetoricUI();proseUI();meterUI();lexUI();poemUI();bind();pwa();
+function pwa(){if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(function(){});window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;$('#install').classList.remove('hide')});$('#install').onclick=async function(){if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;$('#install').classList.add('hide')}}
+viewIndex=Math.max(0,Math.min(lessons.length-1,st.current));renderLesson();renderReview();fillFreeMeters();renderDrafts();renderMirror();renderMeters();bind();pwa();
 })();
