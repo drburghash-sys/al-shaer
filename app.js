@@ -87,12 +87,37 @@ function lcsScore(ref,input){var a=tokens(ref),b=tokens(input);if(!a.length||!b.
 function fullVerse(v){return v.a+' '+v.b}
 function splitCandidate(s){var t=String(s||'').trim();var p=t.split(/\n+|\s[\/|=—–]\s/).map(function(x){return x.trim()}).filter(Boolean);return p.length>=2?[p[0],p.slice(1).join(' ')]:null}
 function pulse(s){var n=normalize(s).replace(/\s/g,'');if(!n)return 0;var longs=(n.match(/[اوي]/g)||[]).length;var letters=n.length;return letters+Math.round(longs*.45)}
+function issueLocation(half,type){
+ var w=tokens(half);if(!w.length)return '';
+ var cut=Math.max(1,Math.min(w.length-1,Math.floor(w.length*.55)));
+ if(type==='short'){
+   var before=w.slice(Math.max(0,cut-2),cut).join(' ');
+   return before?'بعد «'+before+'»':'قرب منتصف الشطر';
+ }
+ var around=w.slice(Math.max(0,cut-1),Math.min(w.length,cut+2)).join(' ');
+ return around?'حول «'+around+'»':'قرب منتصف الشطر';
+}
 function rhythmResult(candidate,ref){
  var parts=splitCandidate(candidate);if(!parts)return {ok:false,needsSplit:true,html:'افصل الشطرين بسطر جديد أو بعلامة <b>/</b>. لا أستطيع حتى الفحص التقريبي إذا كان الشطران ملتصقين.'};
- var target=[pulse(ref.a),pulse(ref.b)],got=[pulse(parts[0]),pulse(parts[1])],issues=[];
- for(var i=0;i<2;i++){var r=target[i]?got[i]/target[i]:1;if(r>1.16)issues.push('الشطر '+(i===0?'الأول':'الثاني')+' يبدو أطول من النموذج؛ راجع خصوصًا الكلمات الزائدة قرب منتصفه ونهايته.');else if(r<.84)issues.push('الشطر '+(i===0?'الأول':'الثاني')+' يبدو أقصر من النموذج؛ راجع موضعًا ناقص النبض قبل النهاية.')}
- if(issues.length)return {ok:false,html:'<b>يوجد خلل إيقاعي محتمل:</b><br>'+issues.join('<br>')+'<br><br><span class="muted">لا أعطيك الصياغة الصحيحة. غيّر عبارتك أنت مع الحفاظ على المعنى والصورة ثم أعد الفحص.</span>',issues:issues};
- return {ok:true,html:'<b>لا يظهر فرق كبير في طول النبض المكتوب مقارنة بالنموذج.</b><br>هذا لا يثبت سلامة الوزن نهائيًا؛ اقرأ بيتك بصوت مرتفع على نغمة البيت الأصلي. إذا تعثرت أذنك فعدّل العبارة قبل النظر إلى التفعيلات.'}
+ var target=[pulse(ref.a),pulse(ref.b)],got=[pulse(parts[0]),pulse(parts[1])],issues=[],details=[];
+ for(var i=0;i<2;i++){
+   var name=i===0?'الأول':'الثاني',ratio=target[i]?got[i]/target[i]:1;
+   if(ratio>1.16){
+     var locLong=issueLocation(parts[i],'long');
+     var severityLong=ratio>1.35?'كبير':'متوسط';
+     var textLong='الشطر '+name+' أطول من النموذج بفرق '+severityLong+'، والزيادة تظهر تقريبًا '+locLong+'.';
+     issues.push(textLong);
+     details.push('<div><b>الشطر '+name+': زيادة إيقاعية محتملة</b><br>موضعها التقريبي: '+esc(locLong)+'.<br><b>ماذا تفعل؟</b> لا تحذف كلمة عشوائيًا؛ ابحث عن كلمة أو تركيب يكرر معنى موجودًا أصلًا، أو حاول قول الفكرة نفسها بعبارة أخف.</div>');
+   }else if(ratio<.84){
+     var locShort=issueLocation(parts[i],'short');
+     var severityShort=ratio<.68?'كبير':'واضح';
+     var textShort='الشطر '+name+' أقصر من النموذج بفرق '+severityShort+'، والنقص يبدأ تقريبًا '+locShort+'.';
+     issues.push(textShort);
+     details.push('<div><b>الشطر '+name+': نقص إيقاعي محتمل</b><br>موضعه التقريبي: '+esc(locShort)+'.<br><b>ماذا تفعل؟</b> لا تضف كلمة للحشو. اسأل: ماذا ينقص المعنى هنا؟ صفة؟ أثر؟ حركة؟ سبب؟ أكمل المعنى في هذا الموضع ثم أعد القراءة.</div>');
+   }
+ }
+ if(issues.length)return {ok:false,html:'<b>أين المشكلة؟</b><br>'+details.join('<hr style="border:0;border-top:1px solid #ffffff18;margin:10px 0">')+'<br><span class="muted">الموضع تقريبي لأنه مبني على الامتداد الصوتي المكتوب، لا على تقطيع عروضي صوتي كامل. أصلح العبارة بنفسك أولًا، ثم أعد الفحص؛ لن أعطيك الكلمة الجاهزة.</span>',issues:issues};
+ return {ok:true,html:'<b>لا يظهر فرق كبير في الامتداد الإيقاعي مقارنة بالنموذج.</b><br>هذا لا يثبت سلامة الوزن نهائيًا. اقرأ الشطرين على نغمة البيت الأصلي. إذا تعثرت أذنك، علّم الكلمة التي بدأ عندها التعثر وعدّل العبارة قبل النظر إلى التفعيلات.'}
 }
 function daysSince(ts){return Math.floor((Date.now()-ts)/86400000)}
 function nextIncomplete(from){for(var k=1;k<=lessons.length;k++){var i=(from+k)%lessons.length;if(!st.completed[lessons[i].id])return i}return (from+1)%lessons.length}
